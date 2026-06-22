@@ -92,24 +92,61 @@ const TOPICS_DATA = {
   },
   fruits: {
     id: "fruits",
-    titleVi: "Hoa quả & Rau củ",
-    titleEn: "Fruits & Veggies",
+    titleVi: "Trái cây",
+    titleEn: "Fruits",
     emoji: "🍓",
-    badgeId: "fruit_basket",
-    badgeEmoji: "🧺",
-    badgeName: "Huy hiệu Giỏ Trái Cây",
+    badgeId: "market_helper",
+    badgeEmoji: "🛒",
+    badgeName: "Market Helper",
     words: [
-      { word: "Banana", vi: "Quả chuối", emoji: "🍌", context: "I like to eat a banana.", contextVi: "Tớ thích ăn một quả chuối." },
-      { word: "Pear", vi: "Quả lê", emoji: "🍐", context: "This pear is sweet.", contextVi: "Quả lê này ngọt quá." },
-      { word: "Tomato", vi: "Quả cà chua", emoji: "🍅", context: "A red tomato.", contextVi: "Một quả cà chua màu đỏ." },
-      { word: "Carrot", vi: "Củ cà rốt", emoji: "🥕", context: "Rabbits love carrots.", contextVi: "Những chú thỏ yêu cà rốt." },
-      { word: "Onion", vi: "Củ hành tây", emoji: "🧅", context: "Peeling an onion makes me cry.", contextVi: "Bóc hành tây làm tớ chảy nước mắt." },
-      { word: "Orange", vi: "Quả cam", emoji: "🍊", context: "Orange juice is healthy.", contextVi: "Nước cam rất tốt cho sức khỏe." },
-      { word: "Pineapple", vi: "Quả dứa", emoji: "🍍", context: "Pineapple is yellow and juicy.", contextVi: "Quả dứa màu vàng và mọng nước." },
-      { word: "Potato", vi: "Củ khoai tây", emoji: "🥔", context: "Mashed potatoes are delicious.", contextVi: "Khoai tây nghiền ăn rất ngon." },
-      { word: "Broccoli", vi: "Súp lơ xanh", emoji: "🥦", context: "Eat your broccoli, it is good!", contextVi: "Hãy ăn súp lơ xanh nhé, tốt lắm đấy!" },
-      { word: "Strawberry", vi: "Quả dâu tây", emoji: "🍓", context: "Strawberries are bright red.", contextVi: "Những quả dâu tây có màu đỏ tươi." }
+      { word: "Strawberry", vi: "Dâu tây", emoji: "🍓", colorHint: "Red — Đỏ", colorId: "red", context: "This is a strawberry. It is red!", contextVi: "Đây là quả dâu tây. Nó màu đỏ!" },
+      { word: "Banana", vi: "Chuối", emoji: "🍌", colorHint: "Yellow — Vàng", colorId: "yellow", context: "This is a banana. It is yellow!", contextVi: "Đây là quả chuối. Nó màu vàng!" },
+      { word: "Apple", vi: "Táo", emoji: "🍎", colorHint: "Red or Green — Đỏ/Xanh", colorId: "red", context: "This is an apple. It is red or green!", contextVi: "Đây là quả táo. Nó màu đỏ hoặc xanh lá!" },
+      { word: "Orange", vi: "Cam", emoji: "🍊", colorHint: "Orange — Cam", colorId: "orange", context: "This is an orange. It is orange!", contextVi: "Đây là quả cam. Nó màu cam!" },
+      { word: "Grape", vi: "Nho", emoji: "🍇", colorHint: "Purple — Tím", colorId: "purple", context: "This is a grape. It is purple!", contextVi: "Đây là quả nho. Nó màu tím!" },
+      { word: "Watermelon", vi: "Dưa hấu", emoji: "🍉", colorHint: "Green outside, Red inside — Xanh vỏ đỏ lòng", colorId: "green", context: "This is a watermelon. It is green outside, red inside!", contextVi: "Đây là quả dưa hấu. Nó vỏ xanh lòng đỏ!" },
+      { word: "Mango", vi: "Xoài", emoji: "🥭", colorHint: "Yellow — Vàng", colorId: "yellow", context: "This is a mango. It is yellow!", contextVi: "Đây là quả xoài. Nó màu vàng!" }
     ]
+  },
+  science: {
+    id: "science",
+    titleVi: "Khoa học",
+    titleEn: "Life Cycle",
+    emoji: "🔬",
+    badgeId: "green_thumb",
+    badgeEmoji: "🌱",
+    badgeName: "Green Thumb",
+    words: [
+      { word: "Seed", vi: "Hạt giống", emoji: "🌱", context: "A tiny seed is planted in the ground.", contextVi: "Một hạt nhỏ được gieo xuống đất." },
+      { word: "Sprout", vi: "Cây non", emoji: "🌿", context: "The seed grows into a little plant.", contextVi: "Hạt nảy mầm thành cây non." },
+      { word: "Flower", vi: "Hoa", emoji: "🌼", context: "The plant grows a beautiful flower.", contextVi: "Cây ra hoa trắng xinh." },
+      { word: "Fruit", vi: "Quả dâu tây", emoji: "🍓", context: "The flower becomes a ripe, red strawberry!", contextVi: "Hoa kết thành quả dâu tây đỏ mọng!" }
+    ]
+  },
+  cooking: {
+    id: "cooking",
+    titleVi: "Nấu ăn",
+    titleEn: "Yogurt Recipe",
+    emoji: "🍳",
+    badgeId: "little_chef",
+    badgeEmoji: "🍧",
+    badgeName: "Little Chef",
+    words: [
+      { word: "Step 1", vi: "Chọn trái cây", emoji: "🍓" },
+      { word: "Step 2", vi: "Múc sữa chua", emoji: "🥄" },
+      { word: "Step 3", vi: "Trang trí cốc", emoji: "🎨" },
+      { word: "Step 4", vi: "Thưởng thức", emoji: "😋" }
+    ]
+  },
+  locked: {
+    id: "locked",
+    titleVi: "Sắp ra mắt!",
+    titleEn: "Coming Soon!",
+    emoji: "🔒",
+    badgeId: "locked_badge",
+    badgeEmoji: "🔒",
+    badgeName: "Locked Badge",
+    words: []
   },
   poem: {
     id: "poem",

@@ -1793,4 +1793,310 @@ body {
   color: var(--primary-pink);
 }
 
+/* ==========================================
+   WEEK 2 NEW CONTENT STYLING
+   ========================================== */
+
+/* Cross-Module Links & Color Badges */
+.color-link-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--bg-light-pink);
+  border: 2px solid var(--primary-pink);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--primary-pink);
+  margin-top: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.color-link-chip:active {
+  transform: scale(0.95);
+}
+
+.fruit-color-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 800;
+  margin-top: 8px;
+  background-color: #EDF2F7;
+  border: 2px solid #E2E8F0;
+  user-select: none;
+}
+
+.fruit-color-badge .color-goto-link {
+  font-size: 10px;
+  color: var(--primary-blue);
+  background-color: #FFFFFF;
+  border: 1.5px solid var(--primary-blue);
+  padding: 2px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 800;
+}
+
+.fruit-color-badge .color-goto-link:active {
+  transform: scale(0.95);
+}
+
+/* Theme Colors for new modules */
+.topic-card-science { background-color: #E6FAF4; border: 3px solid #A3EAD6; }
+.topic-card-cooking { background-color: #FFF9E6; border: 3px solid #FFEAA7; }
+.topic-card-locked { background-color: #EDF2F7; border: 3px dashed #CBD5E0; opacity: 0.75; cursor: not-allowed; }
+
+/* Locked Badge Grayscale Silhouettes */
+.album-badge-item.locked .badge-sticker-frame {
+  filter: grayscale(1) opacity(0.3);
+  border: 4px dashed #A0AEC0;
+  background-color: #E2E8F0;
+}
+
+.album-badge-item.locked {
+  position: relative;
+}
+
+.album-badge-item.locked::before {
+  content: "🔒";
+  position: absolute;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 18px;
+  z-index: 10;
+}
+
+/* Strawberry Life Cycle Timeline Styles */
+.science-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  margin: 12px 0;
+}
+
+.science-stage-card {
+  background-color: #FFFFFF;
+  border: 3px solid #A3EAD6;
+  border-radius: 26px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: var(--shadow-playful);
+  position: relative;
+}
+
+.science-stage-img {
+  font-size: 64px;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.08));
+}
+
+.science-stage-title-en {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--primary-green);
+}
+
+.science-stage-title-vi {
+  font-size: 15px;
+  font-weight: 800;
+  color: #718096;
+  margin-top: 2px;
+}
+
+.science-stage-desc {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-top: 10px;
+  line-height: 1.4;
+  background-color: #F0FFF4;
+  padding: 10px 14px;
+  border-radius: 16px;
+  border: 1px dashed #A3EAD6;
+  width: 100%;
+}
+
+.science-dropzone-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.science-slot {
+  height: 80px;
+  border: 3px dashed #A3EAD6;
+  background-color: #F0FFF4;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: #718096;
+  position: relative;
+  cursor: pointer;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.science-slot.filled {
+  border-style: solid;
+  background-color: #FFFFFF;
+  box-shadow: var(--shadow-playful);
+}
+
+.science-slot-number {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--primary-green);
+}
+
+.science-shuffled-pool {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.science-pool-item {
+  width: 68px;
+  height: 68px;
+  border-radius: 18px;
+  border: 3px solid #A3EAD6;
+  background-color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: var(--shadow-playful);
+  transition: all 0.2s ease;
+}
+
+.science-pool-item:active {
+  transform: scale(0.92);
+}
+
+.science-pool-item.used {
+  opacity: 0.3;
+  pointer-events: none;
+  box-shadow: none;
+  transform: scale(0.95);
+  border-color: #E2E8F0;
+}
+
+/* Fruit Yogurt Cooking Game Styles */
+.cooking-stage-box {
+  background-color: #FFFFFF;
+  border: 3px solid #FFEAA7;
+  border-radius: 28px;
+  padding: 20px;
+  box-shadow: var(--shadow-playful);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.cooking-tray {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  width: 100%;
+  margin: 16px 0;
+}
+
+.cooking-tray-item {
+  background-color: #FFFFFF;
+  border: 3px solid #E2E8F0;
+  border-radius: 18px;
+  padding: 8px 4px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-playful);
+}
+
+.cooking-tray-item.selected {
+  border-color: var(--primary-yellow);
+  background-color: var(--bg-light-yellow);
+  transform: scale(1.05);
+}
+
+.cooking-check-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: var(--primary-green);
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+}
+
+.yogurt-cup-wrapper {
+  position: relative;
+  width: 180px;
+  height: 200px;
+  margin: 16px 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.scoop-spoon {
+  font-size: 48px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  user-select: none;
+  display: inline-block;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+}
+
+.scoop-spoon.animating {
+  animation: scoop-action-effect 0.6s ease;
+}
+
+@keyframes scoop-action-effect {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  30% { transform: translate(-40px, -20px) rotate(-25deg); }
+  70% { transform: translate(30px, -70px) rotate(35deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.yogurt-cup-svg {
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.06));
+}
+
+
 

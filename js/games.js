@@ -1478,6 +1478,181 @@ const MiniGames = {
 
       optionsContainer.appendChild(btn);
     });
+  },
+
+  // ==========================================
+  // 6. FRUITS MARKET GAME
+  // ==========================================
+  initFruitsGame(containerId, onComplete) {
+    this.activeGame = "fruits";
+    this.gameState = {
+      score: 0,
+      targetScore: 7,
+      currentQuestion: null,
+      options: [],
+      onComplete: onComplete,
+      basketFruits: []
+    };
+
+    const container = document.getElementById(containerId);
+    container.innerHTML = `
+      <div class="game-card fruits-market-game" style="border-color: var(--primary-pink); padding: 16px;">
+        <h2 class="game-title" style="color: var(--primary-pink)">Chợ Quả Ngọt 🛒</h2>
+        <p class="game-instruction">Nghe yêu cầu và chọn quả xếp vào giỏ hàng nhé!</p>
+        
+        <div class="game-score-bar">
+          <div id="fruits-stars-progress" class="game-stars-progress"></div>
+        </div>
+
+        <div class="game-action-center" style="margin: 8px 0;">
+          <button id="fruits-listen-btn" class="speak-btn pulse-button" style="background-color: var(--primary-pink); box-shadow: 0 5px 0 #d94b6c, var(--shadow-playful);">
+            🔊 Nghe Yêu Cầu
+          </button>
+        </div>
+
+        <div class="market-shelves" style="width: 100%; display: flex; flex-direction: column; gap: 12px; margin: 12px 0;">
+          <div id="fruits-options" class="feelings-grid" style="grid-template-columns: repeat(4, 1fr); gap: 10px;"></div>
+        </div>
+
+        <div class="market-basket-section" style="width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 10px;">
+          <div style="font-size: 13px; font-weight: 800; color: #718096; margin-bottom: 4px;">Giỏ hàng của bé:</div>
+          <div id="market-basket" style="font-size: 32px; min-height: 50px; width: 80%; background-color: #FFF0E6; border: 3px dashed #FFD8A8; border-radius: 18px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px;">
+            🛒 (Giỏ trống)
+          </div>
+        </div>
+
+        <div id="fruits-feedback" class="game-feedback-text" style="min-height: 24px; font-size: 14px; font-weight: 800;"></div>
+      </div>
+    `;
+
+    // Render initial stars
+    const progressContainer = document.getElementById("fruits-stars-progress");
+    progressContainer.innerHTML = "";
+    for (let i = 0; i < 7; i++) {
+      const star = document.createElement("span");
+      star.className = "game-star-indicator";
+      star.innerText = "⭐";
+      progressContainer.appendChild(star);
+    }
+
+    document.getElementById("fruits-listen-btn").addEventListener("click", () => {
+      if (this.gameState.currentQuestion) {
+        AudioManager.speak(`Give me the ${this.gameState.currentQuestion.word}`, false);
+      }
+    });
+
+    this.nextFruitsQuestion();
+  },
+
+  nextFruitsQuestion() {
+    document.getElementById("fruits-feedback").innerText = "";
+    
+    const stars = document.querySelectorAll("#fruits-stars-progress .game-star-indicator");
+    stars.forEach((star, idx) => {
+      if (idx < this.gameState.score) {
+        star.classList.add("earned");
+        star.style.opacity = "1";
+      } else {
+        star.classList.remove("earned");
+        star.style.opacity = "0.3";
+      }
+    });
+
+    const basket = document.getElementById("market-basket");
+    if (this.gameState.basketFruits.length > 0) {
+      basket.innerHTML = `🛒 ` + this.gameState.basketFruits.map(f => `<span style="display:inline-block; animation: pop-up-effect 0.3s ease;">${f}</span>`).join(" ");
+    } else {
+      basket.innerText = "🛒 (Giỏ trống)";
+    }
+
+    if (this.gameState.score >= this.gameState.targetScore) {
+      const topic = TOPICS_DATA.fruits;
+      topic.words.forEach(w => {
+        App.markItemPracticed("fruits", w.word, "speak");
+      });
+      App.saveState();
+      
+      AudioManager.playCorrect();
+      
+      const feedback = document.getElementById("fruits-feedback");
+      feedback.innerHTML = `<span class="happy-msg" style="color:var(--primary-green);">Tuyệt vời! Bé đã hoàn thành trò chơi Chợ Quả Ngọt! 🛒🥳</span>`;
+      
+      setTimeout(() => {
+        this.gameState.onComplete();
+      }, 2500);
+      return;
+    }
+
+    const fruitsData = TOPICS_DATA.fruits.words;
+    const target = fruitsData[this.gameState.score];
+    this.gameState.currentQuestion = target;
+
+    setTimeout(() => {
+      AudioManager.speak(`Give me the ${target.word}`, false);
+    }, 400);
+
+    let options = [target];
+    while (options.length < 4) {
+      const randomOpt = fruitsData[Math.floor(Math.random() * fruitsData.length)];
+      if (!options.some(o => o.word === randomOpt.word)) {
+        options.push(randomOpt);
+      }
+    }
+    options.sort(() => Math.random() - 0.5);
+    this.gameState.options = options;
+
+    const optionsContainer = document.getElementById("fruits-options");
+    optionsContainer.innerHTML = "";
+    
+    options.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.className = "feeling-option-card";
+      btn.style.padding = "10px 4px";
+      btn.innerHTML = `
+        <span class="feeling-emoji" style="font-size: 32px; margin-bottom: 2px;">${opt.emoji}</span>
+        <span class="feeling-label-vi" style="font-size: 11px;">${opt.word}</span>
+      `;
+      
+      btn.addEventListener("click", () => this.handleFruitSelect(opt, btn));
+      optionsContainer.appendChild(btn);
+    });
+  },
+
+  handleFruitSelect(selected, buttonEl) {
+    const isCorrect = selected.word === this.gameState.currentQuestion.word;
+    
+    const buttons = document.querySelectorAll("#fruits-options .feeling-option-card");
+    buttons.forEach(b => b.style.pointerEvents = "none");
+
+    if (isCorrect) {
+      buttonEl.classList.add("correct-bounce");
+      AudioManager.playCorrect();
+      this.gameState.score++;
+      this.gameState.basketFruits.push(selected.emoji);
+      
+      const feedback = document.getElementById("fruits-feedback");
+      feedback.innerHTML = `<span class="happy-msg" style="color:var(--primary-green);">Tuyệt vời! Bé chọn đúng quả ${selected.vi} rồi! 🍉</span>`;
+      
+      createConfetti(buttonEl);
+
+      setTimeout(() => {
+        this.nextFruitsQuestion();
+      }, 1800);
+    } else {
+      buttonEl.classList.add("incorrect-shake");
+      AudioManager.playTap();
+      
+      const feedback = document.getElementById("fruits-feedback");
+      feedback.innerHTML = `<span class="retry-msg" style="color:var(--primary-pink);">Bé tìm lại quả ${this.gameState.currentQuestion.vi} xem nào! 💪</span>`;
+
+      AudioManager.speak(`Give me the ${this.gameState.currentQuestion.word}`, false);
+
+      setTimeout(() => {
+        buttonEl.classList.remove("incorrect-shake");
+        buttons.forEach(b => b.style.pointerEvents = "auto");
+        feedback.innerHTML = "";
+      }, 1500);
+    }
   }
 };
 
@@ -1528,3 +1703,610 @@ function createConfetti(targetEl, customColor = null, count = 15) {
     container.remove();
   }, 1200);
 }
+
+
+// ==========================================
+// 7. STRAWBERRY LIFE CYCLE (SCIENCE) CONTROLLER
+// ==========================================
+const ScienceController = {
+  containerId: null,
+  onComplete: null,
+  activeTab: "learn", // "learn" or "game"
+  currentLearnStage: 0,
+  shuffledStages: [],
+  selectedPoolItem: null,
+  placedSlots: [null, null, null, null],
+
+  stages: [
+    { word: "Seed", vi: "Hạt giống", emoji: "🌱", desc: "A tiny seed is planted in the ground.", descVi: "Một hạt nhỏ được gieo xuống đất.", step: 1 },
+    { word: "Sprout", vi: "Cây non", emoji: "🌿", desc: "The seed grows into a little plant.", descVi: "Hạt nảy mầm thành cây non.", step: 2 },
+    { word: "Flower", vi: "Hoa dâu tây", emoji: "🌼", desc: "The plant grows a beautiful flower.", descVi: "Cây ra hoa trắng xinh.", step: 3 },
+    { word: "Fruit", vi: "Quả dâu tây", emoji: "🍓", desc: "The flower becomes a ripe, red strawberry!", descVi: "Hoa kết thành quả dâu tây đỏ mọng!", step: 4 }
+  ],
+
+  init(containerId, onComplete) {
+    this.containerId = containerId;
+    this.onComplete = onComplete;
+    this.activeTab = "learn";
+    this.currentLearnStage = 0;
+    this.placedSlots = [null, null, null, null];
+    this.selectedPoolItem = null;
+
+    this.render();
+  },
+
+  render() {
+    const container = document.getElementById(this.containerId);
+    if (!container) return;
+
+    container.innerHTML = `
+      <div style="width:100%; display:flex; flex-direction:column; gap:16px;">
+        <!-- Mode Switcher Tabs -->
+        <div style="display:flex; justify-content:center; gap:12px; margin-bottom:4px;">
+          <button id="sci-tab-learn" class="playback-btn" style="flex:1; border-radius:18px; padding:12px; font-weight:900; background-color:${this.activeTab === "learn" ? "var(--primary-green)" : "white"}; color:${this.activeTab === "learn" ? "white" : "var(--primary-green)"}; border-color:var(--primary-green);">
+            📖 Học vòng đời
+          </button>
+          <button id="sci-tab-game" class="playback-btn" style="flex:1; border-radius:18px; padding:12px; font-weight:900; background-color:${this.activeTab === "game" ? "var(--primary-green)" : "white"}; color:${this.activeTab === "game" ? "white" : "var(--primary-green)"}; border-color:var(--primary-green);">
+            🧩 Sắp xếp thẻ
+          </button>
+        </div>
+
+        <div id="science-content-area" style="width: 100%;"></div>
+      </div>
+    `;
+
+    document.getElementById("sci-tab-learn").onclick = () => {
+      AudioManager.playTap();
+      this.activeTab = "learn";
+      this.render();
+    };
+
+    document.getElementById("sci-tab-game").onclick = () => {
+      AudioManager.playTap();
+      this.activeTab = "game";
+      this.initGameMode();
+      this.render();
+    };
+
+    if (this.activeTab === "learn") {
+      this.renderLearnMode();
+    } else {
+      this.renderGameMode();
+    }
+  },
+
+  renderLearnMode() {
+    const area = document.getElementById("science-content-area");
+    const stage = this.stages[this.currentLearnStage];
+
+    area.innerHTML = `
+      <div class="science-timeline">
+        <!-- Stage flashcard -->
+        <div class="science-stage-card">
+          <div style="position:absolute; top:12px; left:16px; font-size:12px; font-weight:900; color:var(--primary-green); background-color:#E6FAF4; padding:4px 10px; border-radius:12px;">
+            Giai đoạn ${stage.step}/4
+          </div>
+          
+          <div class="science-stage-img" style="font-size:72px; animation: pop-up-effect 0.5s ease;">${stage.emoji}</div>
+          <div class="science-stage-title-en">${stage.word}</div>
+          <div class="science-stage-title-vi">${stage.vi}</div>
+          
+          <div class="science-stage-desc" style="margin-top:12px;">
+            <div style="font-weight:700; color:var(--text-dark); font-size:14px;">"${stage.desc}"</div>
+            <div style="font-weight:600; color:#4A5568; font-size:12px; margin-top:4px;">"${stage.descVi}"</div>
+          </div>
+
+          <div style="display:flex; justify-content:center; gap:12px; margin-top:16px; width:100%;">
+            <button id="sci-btn-listen" class="playback-btn" style="background-color:var(--bg-light-blue); border-color:var(--primary-blue); color:var(--primary-blue); padding:10px 18px; border-radius:20px; font-weight:800;">
+              🔊 Nghe câu ví dụ
+            </button>
+            <button id="sci-btn-goto-fruits" class="playback-btn" style="background-color:#FFF5F5; border-color:var(--primary-pink); color:var(--primary-pink); padding:10px 18px; border-radius:20px; font-weight:800;">
+              🍓 Xem Fruits
+            </button>
+          </div>
+        </div>
+
+        <!-- Mini slider dots -->
+        <div style="display:flex; justify-content:center; gap:8px;">
+          ${this.stages.map((s, idx) => `
+            <div style="width:12px; height:12px; border-radius:50%; background-color:${idx === this.currentLearnStage ? "var(--primary-green)" : "#CBD5E0"}; transition:all 0.3s ease; cursor:pointer;" onclick="ScienceController.changeLearnStage(${idx})"></div>
+          `).join("")}
+        </div>
+
+        <!-- Slider nav controls -->
+        <div class="card-navigation-footer" style="padding-top:10px;">
+          <button id="sci-btn-prev" class="nav-arrow-btn" ${this.currentLearnStage === 0 ? "disabled" : ""}>◀</button>
+          <button id="sci-btn-next" class="nav-arrow-btn" style="background-color:${this.currentLearnStage === 3 ? "var(--primary-green)" : ""}; color:${this.currentLearnStage === 3 ? "white" : ""};">${this.currentLearnStage === 3 ? "✓ Xong" : "▶"}</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById("sci-btn-listen").onclick = () => {
+      AudioManager.playTap();
+      AudioManager.speak(stage.word, false, "normal", () => {
+        setTimeout(() => {
+          AudioManager.speak(stage.desc, false);
+        }, 600);
+      });
+    };
+
+    document.getElementById("sci-btn-goto-fruits").onclick = () => {
+      AudioManager.playTap();
+      App.navigateToFruit("Strawberry");
+    };
+
+    document.getElementById("sci-btn-prev").onclick = () => {
+      if (this.currentLearnStage > 0) {
+        AudioManager.playTap();
+        this.currentLearnStage--;
+        this.renderLearnMode();
+      }
+    };
+
+    document.getElementById("sci-btn-next").onclick = () => {
+      AudioManager.playTap();
+      if (this.currentLearnStage < 3) {
+        this.currentLearnStage++;
+        this.renderLearnMode();
+      } else {
+        this.activeTab = "game";
+        this.initGameMode();
+        this.render();
+      }
+    };
+
+    setTimeout(() => {
+      AudioManager.speak(stage.word, false);
+    }, 500);
+  },
+
+  changeLearnStage(idx) {
+    AudioManager.playTap();
+    this.currentLearnStage = idx;
+    this.renderLearnMode();
+  },
+
+  initGameMode() {
+    this.placedSlots = [null, null, null, null];
+    this.selectedPoolItem = null;
+    this.shuffledStages = [...this.stages].sort(() => Math.random() - 0.5);
+  },
+
+  renderGameMode() {
+    const area = document.getElementById("science-content-area");
+
+    area.innerHTML = `
+      <div class="science-timeline" style="gap:12px;">
+        <p class="game-instruction" style="margin-bottom:0;">Chạm thẻ bên dưới rồi chạm ô trống tương ứng từ 1 đến 4 trên trục thời gian nhé!</p>
+        
+        <!-- Timeline targets -->
+        <div class="science-dropzone-row">
+          ${[0, 1, 2, 3].map(idx => {
+            const placed = this.placedSlots[idx];
+            return `
+              <div class="science-slot ${placed ? "filled" : ""}" id="sci-slot-${idx}" onclick="ScienceController.handleSlotClick(${idx})">
+                <span class="science-slot-number">${idx + 1}</span>
+                ${placed ? `
+                  <div style="font-size:36px; margin-top:2px;">${placed.emoji}</div>
+                  <div style="font-size:10px; font-weight:800; color:var(--text-dark);">${placed.word}</div>
+                ` : `<span style="font-size:10px;">Chờ xếp...</span>`}
+              </div>
+            `;
+          }).join("")}
+        </div>
+
+        <!-- Shuffled cards pool -->
+        <div class="science-shuffled-pool">
+          ${this.shuffledStages.map((stage, idx) => {
+            const isUsed = this.placedSlots.some(p => p && p.word === stage.word);
+            const isSelected = this.selectedPoolItem && this.selectedPoolItem.idx === idx;
+            return `
+              <div class="science-pool-item ${isUsed ? "used" : ""} ${isSelected ? "selected" : ""}" 
+                   style="${isSelected ? "border-color:var(--primary-green); background-color:#E6FAF4; transform:scale(1.05);" : ""}"
+                   onclick="ScienceController.handlePoolClick(${idx}, '${stage.word}')">
+                <div style="font-size:32px;">${stage.emoji}</div>
+                <div style="font-size:10px; font-weight:900; color:#4A5568; margin-top:2px;">${stage.word}</div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+
+        <!-- Hint center -->
+        <div style="display:flex; justify-content:center; gap:12px; margin-top:8px; width:100%;">
+          <button id="sci-game-hint" class="playback-btn" style="background-color:var(--bg-light-yellow); border-color:var(--primary-yellow); color:var(--primary-yellow); padding:10px 20px; border-radius:20px; font-weight:800; font-size:13px;">
+            💡 Phát âm gợi ý
+          </button>
+        </div>
+
+        <div id="sci-game-feedback" class="game-feedback-text" style="min-height:24px; font-size:14px; font-weight:800;"></div>
+      </div>
+    `;
+
+    document.getElementById("sci-game-hint").onclick = () => {
+      AudioManager.playTap();
+      if (this.selectedPoolItem) {
+        const item = this.shuffledStages[this.selectedPoolItem.idx];
+        AudioManager.speak(item.word, false);
+      } else {
+        const unplaced = this.shuffledStages.filter(s => !this.placedSlots.some(p => p && p.word === s.word));
+        if (unplaced.length > 0) {
+          AudioManager.speak(unplaced[0].word, false);
+        }
+      }
+    };
+  },
+
+  handlePoolClick(idx, word) {
+    AudioManager.playTap();
+    const stage = this.shuffledStages[idx];
+    const isUsed = this.placedSlots.some(p => p && p.word === stage.word);
+    if (isUsed) return;
+
+    this.selectedPoolItem = { idx, word };
+    AudioManager.speak(stage.word, false);
+    this.renderGameMode();
+  },
+
+  handleSlotClick(slotIdx) {
+    if (!this.selectedPoolItem) {
+      if (this.placedSlots[slotIdx]) {
+        AudioManager.playTap();
+        this.placedSlots[slotIdx] = null;
+        this.renderGameMode();
+      }
+      return;
+    }
+
+    AudioManager.playTap();
+    const stage = this.shuffledStages[this.selectedPoolItem.idx];
+    
+    if (stage.step === slotIdx + 1) {
+      this.placedSlots[slotIdx] = stage;
+      this.selectedPoolItem = null;
+      
+      const feedback = document.getElementById("sci-game-feedback");
+      feedback.innerHTML = `<span class="happy-msg" style="color:var(--primary-green);">Tuyệt vời! Giai đoạn ${slotIdx + 1} chính xác! 🎉</span>`;
+      
+      createConfetti(document.getElementById(`sci-slot-${slotIdx}`));
+      
+      const won = this.placedSlots.every((p, idx) => p && p.step === idx + 1);
+      if (won) {
+        feedback.innerHTML = `<span class="happy-msg" style="color:var(--primary-green);">Chúc mừng! Bé đã hoàn thành Vòng đời Dâu Tây! 🍓🌱</span>`;
+        this.showGrowthAnimation();
+      } else {
+        setTimeout(() => this.renderGameMode(), 1200);
+      }
+    } else {
+      const el = document.getElementById(`sci-slot-${slotIdx}`);
+      el.classList.add("incorrect-shake");
+      AudioManager.playTap();
+      
+      const feedback = document.getElementById("sci-game-feedback");
+      feedback.innerHTML = `<span class="retry-msg" style="color:var(--primary-pink);">Giai đoạn này không phải số ${slotIdx + 1} rồi, chọn lại đi bé! 💪</span>`;
+      
+      setTimeout(() => {
+        el.classList.remove("incorrect-shake");
+        feedback.innerHTML = "";
+      }, 1500);
+    }
+  },
+
+  showGrowthAnimation() {
+    const area = document.getElementById("science-content-area");
+    area.innerHTML = `
+      <div style="display:flex; flex-direction:column; align-items:center; gap:16px; padding:20px 0;">
+        <h2 style="color:var(--primary-green); font-weight:900;">Dâu tây lớn lên rồi!</h2>
+        <div id="plant-growing" style="font-size:100px; line-height:1; transition:all 1s ease; animation: bounce-effect 1.5s infinite;">🌱</div>
+        <p style="font-weight:700; color:#4A5568;">Nhìn xem, hạt mầm đã mọc thành quả mọng chín đỏ rồi! 🍓</p>
+      </div>
+    `;
+
+    const plant = document.getElementById("plant-growing");
+    
+    setTimeout(() => {
+      plant.innerText = "🌿";
+      AudioManager.playStar();
+    }, 1000);
+
+    setTimeout(() => {
+      plant.innerText = "🌼";
+      AudioManager.playStar();
+    }, 2000);
+
+    setTimeout(() => {
+      plant.innerText = "🍓";
+      AudioManager.playCorrect();
+      createConfetti(plant, null, 30);
+    }, 3000);
+
+    setTimeout(() => {
+      App.state.unlockedBadges["green_thumb"] = true;
+      this.stages.forEach(s => {
+        App.markItemPracticed("science", s.word, "speak");
+      });
+      App.saveState();
+      App.navigateTo("view-home");
+      App.checkTopicBadgeUnlocks("science");
+    }, 5000);
+  }
+};
+
+
+// ==========================================
+// 8. FRUIT YOGURT RECIPE (COOKING) CONTROLLER
+// ==========================================
+const CookingController = {
+  containerId: null,
+  onComplete: null,
+  currentStep: 1, // 1, 2, 3, 4
+  selectedFruits: [],
+  scoopsCount: 0,
+  decoratedFruits: [],
+
+  fruitsPool: [
+    { word: "Strawberry", vi: "Dâu tây", emoji: "🍓" },
+    { word: "Banana", vi: "Chuối", emoji: "🍌" },
+    { word: "Apple", vi: "Táo", emoji: "🍎" },
+    { word: "Mango", vi: "Xoài", emoji: "🥭" }
+  ],
+
+  init(containerId, onComplete) {
+    this.containerId = containerId;
+    this.onComplete = onComplete;
+    this.currentStep = 1;
+    this.selectedFruits = [];
+    this.scoopsCount = 0;
+    this.decoratedFruits = [];
+
+    this.render();
+  },
+
+  render() {
+    const container = document.getElementById(this.containerId);
+    if (!container) return;
+
+    container.innerHTML = `
+      <div style="width:100%; display:flex; flex-direction:column; gap:16px;">
+        <!-- Step progress indicators -->
+        <div style="display:flex; justify-content:space-around; align-items:center; padding:10px; background-color:#FFF9E6; border-radius:18px; border:2px solid #FFEAA7;">
+          ${[1, 2, 3, 4].map(s => `
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div style="width:28px; height:28px; border-radius:50%; background-color:${this.currentStep === s ? "var(--primary-yellow)" : this.currentStep > s ? "var(--primary-green)" : "#CBD5E0"}; color:white; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:12px; transition:all 0.3s ease;">
+                ${this.currentStep > s ? "✓" : s}
+              </div>
+              <span style="font-size:10px; font-weight:800; color:#718096; margin-top:2px;">B. ${s}</span>
+            </div>
+          `).join('<div style="flex:1; height:3px; background-color:#E2E8F0; margin:0 6px;"></div>')}
+        </div>
+
+        <div id="cooking-workspace" class="cooking-stage-box"></div>
+      </div>
+    `;
+
+    this.renderWorkspace();
+  },
+
+  renderWorkspace() {
+    const workspace = document.getElementById("cooking-workspace");
+    if (!workspace) return;
+
+    if (this.currentStep === 1) {
+      workspace.innerHTML = `
+        <h3 style="color:var(--text-dark); font-weight:900; font-size:18px;">Bước 1: Chọn quả tươi ngon 🍓🍌</h3>
+        <p class="game-instruction" style="margin-top:4px;">Chạm chọn 2 đến 3 loại quả để làm cốc sữa chua hoa quả nhé!</p>
+        
+        <div class="cooking-tray">
+          ${this.fruitsPool.map(fruit => {
+            const isSel = this.selectedFruits.includes(fruit.word);
+            return `
+              <div class="cooking-tray-item ${isSel ? "selected" : ""}" onclick="CookingController.toggleFruit('${fruit.word}')">
+                <div style="font-size:36px;">${fruit.emoji}</div>
+                <div style="font-size:11px; margin-top:4px; font-weight:800;">${fruit.word}</div>
+                ${isSel ? `<div class="cooking-check-badge">✓</div>` : ""}
+              </div>
+            `;
+          }).join("")}
+        </div>
+
+        <div style="min-height:48px; margin-top:12px;">
+          ${this.selectedFruits.length >= 2 ? `
+            <button id="btn-cook-step1-next" class="mode-done-complete-btn" style="background-color:var(--primary-yellow); box-shadow:0 6px 0px #d9a42b; color:var(--text-dark); max-width:200px; margin:0 auto;">
+              Tiếp theo ➜
+            </button>
+          ` : `<div style="font-size:12px; font-weight:800; color:#A0AEC0;">Chọn ít nhất 2 loại quả nhé!</div>`}
+        </div>
+      `;
+
+      const nextBtn = document.getElementById("btn-cook-step1-next");
+      if (nextBtn) {
+        nextBtn.onclick = () => {
+          AudioManager.playTap();
+          this.currentStep = 2;
+          this.render();
+        };
+      }
+    } 
+    else if (this.currentStep === 2) {
+      workspace.innerHTML = `
+        <h3 style="color:var(--text-dark); font-weight:900; font-size:18px;">Bước 2: Múc sữa chua vào cốc 🥄</h3>
+        <p class="game-instruction" style="margin-top:4px;">Chạm chiếc thìa để múc sữa chua đổ đầy cốc (cần múc 3 lần)!</p>
+        
+        <div class="yogurt-cup-wrapper">
+          <svg class="yogurt-cup-svg" viewBox="0 0 100 120" width="120" height="140">
+            <path d="M20 20 L30 110 Q50 115 70 110 L80 20 Z" fill="none" stroke="#A0AEC0" stroke-width="4"/>
+            ${this.scoopsCount >= 1 ? `<path d="M29 100 Q50 102 71 100 L73 80 Q50 82 27 80 Z" fill="#F7FAFC" opacity="0.9"/>` : ""}
+            ${this.scoopsCount >= 2 ? `<path d="M27 80 Q50 82 73 80 L76 50 Q50 52 24 50 Z" fill="#F7FAFC" opacity="0.95"/>` : ""}
+            ${this.scoopsCount >= 3 ? `<path d="M24 50 Q50 52 76 50 L78 30 Q50 32 22 30 Z" fill="#F7FAFC"/>` : ""}
+          </svg>
+          
+          <div id="scoop-spoon-el" class="scoop-spoon" style="position:absolute; top: -10px; right: 10px;" onclick="CookingController.handleScoop()">🥄</div>
+        </div>
+
+        <div style="font-size:14px; font-weight:900; color:var(--primary-blue)">
+          Số lần múc: <span style="font-size:20px; color:var(--primary-pink);">${this.scoopsCount}</span> / 3
+        </div>
+
+        <div style="min-height:48px; margin-top:12px; width: 100%;">
+          ${this.scoopsCount >= 3 ? `
+            <button id="btn-cook-step2-next" class="mode-done-complete-btn" style="background-color:var(--primary-yellow); box-shadow:0 6px 0px #d9a42b; color:var(--text-dark); max-width:200px; margin:0 auto;">
+              Tiếp theo ➜
+            </button>
+          ` : ""}
+        </div>
+      `;
+
+      const nextBtn = document.getElementById("btn-cook-step2-next");
+      if (nextBtn) {
+        nextBtn.onclick = () => {
+          AudioManager.playTap();
+          this.currentStep = 3;
+          this.render();
+        };
+      }
+    } 
+    else if (this.currentStep === 3) {
+      const remainingFruits = this.selectedFruits.filter(f => !this.decoratedFruits.includes(f));
+      
+      workspace.innerHTML = `
+        <h3 style="color:var(--text-dark); font-weight:900; font-size:18px;">Bước 3: Trang trí cốc sữa chua 🎨</h3>
+        <p class="game-instruction" style="margin-top:4px;">Chạm vào các loại quả đã chọn để xếp chúng lên mặt sữa chua!</p>
+
+        <div class="yogurt-cup-wrapper">
+          <svg class="yogurt-cup-svg" viewBox="0 0 100 120" width="120" height="140">
+            <path d="M20 20 L30 110 Q50 115 70 110 L80 20 Z" fill="none" stroke="#A0AEC0" stroke-width="4"/>
+            <path d="M29 100 L30 110 Q50 115 70 110 L71 100 Z" fill="#F7FAFC"/>
+            <path d="M24 50 L29 100 Q50 102 71 100 L76 50 Z" fill="#F7FAFC" opacity="0.95"/>
+            <path d="M22 30 L24 50 Q50 52 76 50 L78 30 Z" fill="#F7FAFC"/>
+          </svg>
+          
+          <div style="position:absolute; top:25px; left:0; right:0; display:flex; justify-content:center; gap:4px; font-size:24px; pointer-events:none;">
+            ${this.decoratedFruits.map(f => {
+              const emoji = this.fruitsPool.find(fp => fp.word === f).emoji;
+              return `<span style="animation: bounce-effect 0.4s ease;">${emoji}</span>`;
+            }).join("")}
+          </div>
+        </div>
+
+        <div class="cooking-tray" style="grid-template-columns: repeat(${this.selectedFruits.length}, 1fr); max-width:260px;">
+          ${this.selectedFruits.map(fruitName => {
+            const fruit = this.fruitsPool.find(f => f.word === fruitName);
+            const isPlaced = this.decoratedFruits.includes(fruitName);
+            return `
+              <div class="cooking-tray-item ${isPlaced ? "selected" : ""}" style="${isPlaced ? "opacity:0.4; pointer-events:none;" : ""}" onclick="CookingController.decorateFruit('${fruitName}')">
+                <div style="font-size:36px;">${fruit.emoji}</div>
+                <div style="font-size:11px; margin-top:4px; font-weight:800;">${fruit.word}</div>
+                ${isPlaced ? `<div class="cooking-check-badge">✓</div>` : ""}
+              </div>
+            `;
+          }).join("")}
+        </div>
+
+        <div style="min-height:48px; margin-top:12px; width:100%;">
+          ${remainingFruits.length === 0 ? `
+            <button id="btn-cook-step3-next" class="mode-done-complete-btn" style="background-color:var(--primary-yellow); box-shadow:0 6px 0px #d9a42b; color:var(--text-dark); max-width:200px; margin:0 auto;">
+              Tiếp theo ➜
+            </button>
+          ` : `<div style="font-size:12px; font-weight:800; color:#A0AEC0;">Hãy trang trí hết số quả nhé!</div>`}
+        </div>
+      `;
+
+      const nextBtn = document.getElementById("btn-cook-step3-next");
+      if (nextBtn) {
+        nextBtn.onclick = () => {
+          AudioManager.playTap();
+          this.currentStep = 4;
+          this.render();
+        };
+      }
+    } 
+    else if (this.currentStep === 4) {
+      workspace.innerHTML = `
+        <h3 style="color:var(--primary-pink); font-weight:900; font-size:22px;">Sữa chua hoa quả ngon tuyệt! 🍧</h3>
+        <p class="game-instruction" style="color:var(--primary-green); font-size:15px; font-weight:800; margin-top:4px;">Bé đã làm xong món tráng miệng bổ dưỡng rồi! 😋</p>
+        
+        <div class="yogurt-cup-wrapper" style="animation: bounce-effect 1.5s infinite;">
+          <svg class="yogurt-cup-svg" viewBox="0 0 100 120" width="120" height="140">
+            <path d="M20 20 L30 110 Q50 115 70 110 L80 20 Z" fill="none" stroke="#A0AEC0" stroke-width="4"/>
+            <path d="M29 100 L30 110 Q50 115 70 110 L71 100 Z" fill="#F7FAFC"/>
+            <path d="M24 50 L29 100 Q50 102 71 100 L76 50 Z" fill="#F7FAFC" opacity="0.95"/>
+            <path d="M22 30 L24 50 Q50 52 76 50 L78 30 Z" fill="#F7FAFC"/>
+          </svg>
+          <div style="position:absolute; top:25px; left:0; right:0; display:flex; justify-content:center; gap:4px; font-size:24px;">
+            ${this.decoratedFruits.map(f => {
+              const emoji = this.fruitsPool.find(fp => fp.word === f).emoji;
+              return `<span>${emoji}</span>`;
+            }).join("")}
+          </div>
+        </div>
+
+        <div style="background-color:#EBF8FF; border:1px dashed #90CDF4; border-radius:18px; padding:12px; margin-top:8px; width:100%;">
+          <div style="font-size:13px; font-weight:900; color:#2B6CB0; margin-bottom:4px;">💡 Lời khuyên sức khỏe:</div>
+          <div style="font-size:14px; font-weight:800; color:var(--text-dark);">"Trái cây giúp bé khỏe mạnh và vui vẻ! 💪"</div>
+        </div>
+
+        <button id="btn-cook-finish" class="mode-done-complete-btn" style="margin-top:16px; width:80%;">
+          ✓ Nhận Huy Hiệu Đầu Bếp!
+        </button>
+      `;
+
+      setTimeout(() => {
+        AudioManager.playCorrect();
+        createConfetti(workspace, null, 30);
+      }, 300);
+
+      document.getElementById("btn-cook-finish").onclick = () => {
+        AudioManager.playTap();
+        
+        App.state.unlockedBadges["little_chef"] = true;
+        TOPICS_DATA.cooking.words.forEach(w => {
+          App.markItemPracticed("cooking", w.word, "speak");
+        });
+        App.saveState();
+        App.navigateTo("view-home");
+        
+        App.checkTopicBadgeUnlocks("cooking");
+      };
+    }
+  },
+
+  toggleFruit(fruitWord) {
+    AudioManager.playTap();
+    if (this.selectedFruits.includes(fruitWord)) {
+      this.selectedFruits = this.selectedFruits.filter(f => f !== fruitWord);
+    } else {
+      if (this.selectedFruits.length < 3) {
+        this.selectedFruits.push(fruitWord);
+      } else {
+        App.showToast("Bé chỉ chọn tối đa 3 loại quả thôi nhé! 😉");
+      }
+    }
+    this.renderWorkspace();
+  },
+
+  handleScoop() {
+    if (this.scoopsCount >= 3) return;
+
+    AudioManager.playTap();
+    const spoon = document.getElementById("scoop-spoon-el");
+    spoon.classList.add("animating");
+    
+    setTimeout(() => {
+      AudioManager.playStar();
+    }, 300);
+
+    spoon.addEventListener("animationend", () => {
+      spoon.classList.remove("animating");
+      this.scoopsCount++;
+      this.renderWorkspace();
+    }, { once: true });
+  },
+
+  decorateFruit(fruitWord) {
+    if (this.decoratedFruits.includes(fruitWord)) return;
+
+    AudioManager.playTap();
+    this.decoratedFruits.push(fruitWord);
+    AudioManager.playStar();
+    this.renderWorkspace();
+  }
+};

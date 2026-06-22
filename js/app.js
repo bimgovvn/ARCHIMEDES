@@ -240,7 +240,72 @@ const App = {
     };
   },
 
+  showToast(msg) {
+    const toast = document.createElement("div");
+    toast.innerText = msg;
+    toast.style.position = "absolute";
+    toast.style.bottom = "100px";
+    toast.style.left = "50%";
+    toast.style.transform = "translateX(-50%)";
+    toast.style.backgroundColor = "var(--text-dark)";
+    toast.style.color = "#FFFFFF";
+    toast.style.padding = "10px 20px";
+    toast.style.borderRadius = "20px";
+    toast.style.fontSize = "13px";
+    toast.style.fontWeight = "800";
+    toast.style.zIndex = "9999";
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2500);
+  },
+
+  navigateToColor(colorId) {
+    AudioManager.stopSpeaking();
+    this.currentTopic = TOPICS_DATA.colors;
+    this.currentMode = "read";
+    const idx = this.currentTopic.words.findIndex(w => w.word.toLowerCase() === colorId.toLowerCase());
+    this.currentWordIndex = idx >= 0 ? idx : 0;
+    
+    document.getElementById("normal-learning-layout").classList.remove("hidden-view");
+    document.getElementById("poem-learning-layout").classList.add("hidden-view");
+    
+    this.renderWordSlide();
+    this.navigateTo("view-practice");
+  },
+
+  navigateToFruit(fruitWord) {
+    AudioManager.stopSpeaking();
+    this.currentTopic = TOPICS_DATA.fruits;
+    this.currentMode = "read";
+    const idx = this.currentTopic.words.findIndex(w => w.word.toLowerCase() === fruitWord.toLowerCase());
+    this.currentWordIndex = idx >= 0 ? idx : 0;
+    
+    document.getElementById("normal-learning-layout").classList.remove("hidden-view");
+    document.getElementById("poem-learning-layout").classList.add("hidden-view");
+    
+    this.renderWordSlide();
+    this.navigateTo("view-practice");
+  },
+
   selectTopic(topicId) {
+    if (topicId === "locked") {
+      this.showToast("Sắp ra mắt! 🔒");
+      return;
+    }
+    if (topicId === "science") {
+      this.navigateTo("view-science");
+      ScienceController.init("science-interactive-container", () => {
+        this.navigateTo("view-home");
+      });
+      return;
+    }
+    if (topicId === "cooking") {
+      this.navigateTo("view-cooking");
+      CookingController.init("cooking-interactive-container", () => {
+        this.navigateTo("view-home");
+      });
+      return;
+    }
+
     this.currentTopic = TOPICS_DATA[topicId];
     
     // Set titles
@@ -382,13 +447,38 @@ const App = {
     `;
 
     // Set Back card content (Vietnamese interpretation)
-    back.innerHTML = `
+    let backHtml = `
       <div class="flashcard-emoji">${current.emoji || "✨"}</div>
       <div class="flashcard-word-vi">${current.vi}</div>
       ${current.context ? `<div class="flashcard-sentence">"${current.context}"</div>` : ""}
       ${current.contextVi && this.settings.showTranslation ? `<div class="flashcard-sentence" style="font-weight:600; font-size:13px; color:#718096; margin-top:2px;">"${current.contextVi}"</div>` : ""}
-      <div class="card-hint-tap">Chạm để quay lại 🔄</div>
     `;
+
+    if (this.currentTopic.id === "fruits" && current.colorHint) {
+      backHtml += `
+        <div class="fruit-color-badge" style="margin-top:12px;">
+          <span>Màu: ${current.colorHint}</span>
+          <button class="color-goto-link" onclick="event.stopPropagation(); App.navigateToColor('${current.colorId}')">Xem màu 🎨</button>
+        </div>
+      `;
+    } else if (this.currentTopic.id === "colors") {
+      if (current.word === "Red") {
+        backHtml += `
+          <div class="color-link-chip" style="margin-top:12px;" onclick="event.stopPropagation(); App.navigateToFruit('Strawberry')">
+            🍓 Đây là màu của Dâu tây!
+          </div>
+        `;
+      } else if (current.word === "Yellow") {
+        backHtml += `
+          <div class="color-link-chip" style="margin-top:12px;" onclick="event.stopPropagation(); App.navigateToFruit('Banana')">
+            🍌 Đây là màu của Chuối!
+          </div>
+        `;
+      }
+    }
+
+    backHtml += `<div class="card-hint-tap">Chạm để quay lại 🔄</div>`;
+    back.innerHTML = backHtml;
 
     // Reset components visibility by mode
     const listenControls = document.getElementById("listen-controls-panel");
@@ -398,6 +488,7 @@ const App = {
     listenControls.style.display = "none";
     speakControls.style.display = "none";
     feedbackModal.style.display = "none";
+    document.getElementById("bonus-challenge-container").innerHTML = "";
 
     // Standard card flip action
     // Remove previous listeners by cloning
@@ -468,6 +559,9 @@ const App = {
           AudioManager.stopRecording((audioUrl) => {
             recordStatus.innerText = "Đã lưu giọng nói của bé! 🎧";
             
+            const bonusContainer = document.getElementById("bonus-challenge-container");
+            bonusContainer.innerHTML = "";
+
             // Show Feedback popup
             const evaluation = AudioManager.evaluateVoiceSample();
             feedbackModal.style.display = "block";
@@ -489,6 +583,60 @@ const App = {
               ev.stopPropagation();
               AudioManager.playRecording();
             };
+
+            // Bonus challenge logic for 3 stars
+            if (evaluation.stars === 3 && current.context) {
+              bonusContainer.innerHTML = `
+                <div class="bonus-challenge-box" style="margin-top:12px; padding:12px; border-radius:16px; border:2px dashed var(--primary-pink); background-color:var(--bg-light-pink);">
+                  <div style="font-size:13px; font-weight:800; color:var(--primary-pink); margin-bottom:4px;">Thử thách thêm 🌟 Nói cả câu nhé!</div>
+                  <div id="bonus-sentence-text" style="font-size:14px; font-weight:900; color:var(--text-dark); margin-bottom:8px;">"${current.context}"</div>
+                  <button id="btn-bonus-speak" class="playback-btn" style="background-color:var(--primary-pink); border-color:var(--primary-pink); color:white; font-size:12px;">🎙️ Thử sức ngay!</button>
+                </div>
+              `;
+
+              const bonusBtn = document.getElementById("btn-bonus-speak");
+              bonusBtn.onclick = (ev) => {
+                ev.stopPropagation();
+                if (AudioManager.isRecording) {
+                  bonusBtn.innerText = "Đang xử lý...";
+                  AudioManager.stopRecording((audioUrl) => {
+                    const bonusEval = AudioManager.evaluateVoiceSample();
+                    bonusContainer.innerHTML = `
+                      <div class="bonus-challenge-box" style="margin-top:12px; padding:12px; border-radius:16px; border:2px solid var(--primary-green); background-color:var(--bg-light-green);">
+                        <div style="font-size:13px; font-weight:800; color:var(--primary-green); margin-bottom:4px;">Thử thách cả câu thành công! 🎉</div>
+                        <div style="font-size:14px; font-weight:900; color:var(--text-dark); margin-bottom:8px;">"${current.context}"</div>
+                        <div style="font-size:18px; margin-bottom:6px;">${"⭐".repeat(bonusEval.stars)}</div>
+                        <div style="font-size:12px; font-weight:800; color:#4A5568; margin-bottom:8px;">${bonusEval.text}</div>
+                        <button id="btn-bonus-replay" class="playback-btn" style="font-size:11px;">▶ Nghe lại giọng bé</button>
+                      </div>
+                    `;
+                    document.getElementById("btn-bonus-replay").onclick = (replayEv) => {
+                      replayEv.stopPropagation();
+                      AudioManager.playRecording();
+                    };
+                    if (bonusEval.stars === 3) {
+                      AudioManager.playCorrect();
+                      createConfetti(bonusContainer);
+                    } else {
+                      AudioManager.playStar();
+                    }
+                    this.state.stars = (this.state.stars || 0) + 1;
+                    if (this.state.stars % 3 === 0) {
+                      this.state.unlockedStickers = (this.state.unlockedStickers || 0) + 1;
+                    }
+                    this.saveState();
+                    this.updateGreetingBanner();
+                  });
+                } else {
+                  bonusBtn.innerText = "Đang nghe bé... 🔴 (Dừng)";
+                  bonusBtn.style.backgroundColor = "red";
+                  AudioManager.stopSpeaking();
+                  AudioManager.startRecording(null, (err) => {
+                    bonusBtn.innerText = "Lỗi micro 😢";
+                  });
+                }
+              };
+            }
 
             // Play correct chime / star sound
             if (evaluation.stars === 3) {
@@ -907,6 +1055,7 @@ const App = {
 
     // Load badges status
     Object.keys(TOPICS_DATA).forEach(key => {
+      if (key === "locked") return; // Safe-exclude locked topic
       const topic = TOPICS_DATA[key];
       const isUnlocked = this.state.unlockedBadges[topic.badgeId];
 
