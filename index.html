@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>COLOR ME – Ôn bài cùng bé</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Main Mobile viewport container frame -->
+  <div id="app-frame">
+    
+    <!-- Top Header Banner -->
+    <header class="app-header">
+      <div id="greeting-banner-text" class="header-greeting">Xin chào bé! Hôm nay học gì? 🌟</div>
+      
+      <!-- Statistics & Badge Silhouettes Bar -->
+      <div class="home-header-stats">
+        <div class="home-header-star-badge">
+          ⭐ <span id="home-star-count">0</span> sao
+        </div>
+        <div id="badge-silhouettes-bar" class="badge-silhouettes-container">
+          <!-- Silhouettes rendered via JS -->
+        </div>
+      </div>
+    </header>
+
+    <!-- Scrollable main contents viewport -->
+    <main id="app-content" class="app-content">
+
+      <!-- ========================================== -->
+      <!-- VIEW 1: HOME PAGE                          -->
+      <!-- ========================================== -->
+      <div id="view-home" class="hidden-view">
+        <div id="topics-grid-container" class="topics-grid">
+          <!-- 6 Topic Cards rendered via JS -->
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 2: TOPIC SELECT MODES & ACTIVITIES   -->
+      <!-- ========================================== -->
+      <div id="view-topic-select" class="hidden-view">
+        <div class="view-navigation-bar">
+          <button class="back-btn">⬅</button>
+          <div class="view-title-container">
+            <h2 id="topic-select-title-vi" class="view-title-vi">Chủ đề</h2>
+            <div id="topic-select-title-en" class="view-title-en">Topic</div>
+          </div>
+        </div>
+
+        <div id="modes-list-container" class="mode-selection-container">
+          <!-- Modes list populated via JS -->
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 3: PRACTICE LEARNING INTERFACES        -->
+      <!-- ========================================== -->
+      <div id="view-practice" class="hidden-view">
+        <div class="view-navigation-bar">
+          <button class="back-btn">⬅</button>
+          <div class="view-title-container">
+            <h2 class="view-title-vi">Luyện tập</h2>
+            <div class="view-title-en">Practice Mode</div>
+          </div>
+        </div>
+
+        <!-- Normal Vocab Slide Layout -->
+        <div id="normal-learning-layout" class="learning-screen-container">
+          <!-- Progress bar -->
+          <div class="progress-header-bar">
+            <div class="progress-track-bg">
+              <div id="learning-progress-fill" class="progress-track-fill"></div>
+            </div>
+            <span id="learning-progress-text" class="progress-numeric">0/0</span>
+          </div>
+
+          <!-- Flashcard Deck -->
+          <div id="interactive-flashcard" class="flashcard-wrapper">
+            <div class="flashcard-inner">
+              <div class="flashcard-front">
+                <!-- Front contents -->
+              </div>
+              <div class="flashcard-back">
+                <!-- Back contents -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Active mode action controllers -->
+          <div class="learning-controls-panel">
+            
+            <!-- LISTEN Mode: Repeat & Slow buttons -->
+            <div id="listen-controls-panel" class="audio-mode-buttons" style="display:none;">
+              <button id="btn-listen-repeat" class="audio-control-circle-btn btn-listen" title="Nghe lại">🔊</button>
+              <button id="btn-listen-slow" class="audio-control-circle-btn btn-slow" title="Nghe chậm">🐢</button>
+            </div>
+
+            <!-- SPEAK Mode: Recording mic button -->
+            <div id="speak-controls-panel" class="speaking-mic-container" style="display:none;">
+              <button id="btn-speak-record" class="record-btn-large">🎙️</button>
+              <div id="record-status-label" class="recording-status-lbl">Chạm để nói 🎤</div>
+              
+              <!-- Encourage Star Feedback Modal -->
+              <div id="speaking-feedback-popup" class="speaking-feedback-modal">
+                <div id="feedback-stars-container" class="feedback-stars-row">
+                  <!-- Star elements populated via JS -->
+                </div>
+                <div id="feedback-msg-text" class="feedback-text-message">Tuyệt vời! ⭐⭐⭐</div>
+                <div class="playback-controls">
+                  <button id="btn-feedback-replay" class="playback-btn">▶ Nghe Lại Giọng Bé</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Card Nav Arrows Footer -->
+          <div class="card-navigation-footer">
+            <button id="btn-card-prev" class="nav-arrow-btn" disabled>◀</button>
+            <button id="btn-card-next" class="nav-arrow-btn">▶</button>
+          </div>
+        </div>
+
+        <!-- Vietnamese Poem Read Along Layout -->
+        <div id="poem-learning-layout" class="learning-screen-container hidden-view">
+          <!-- Rendered dynamically via JS inside app.js -->
+        </div>
+
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 4: INTERACTIVE MINI-GAMES             -->
+      <!-- ========================================== -->
+      <div id="view-game" class="hidden-view">
+        <div class="view-navigation-bar">
+          <button class="back-btn">⬅</button>
+          <div class="view-title-container">
+            <h2 class="view-title-vi">Trò chơi Trí tuệ</h2>
+            <div class="view-title-en">Educational Mini-Game</div>
+          </div>
+        </div>
+
+        <!-- Interactive Game Canvas/SVG Panel -->
+        <div id="game-interactive-surface" style="flex:1; display:flex; flex-direction:column;">
+          <!-- Loaded dynamically via games.js -->
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 5: ACHIEVEMENTS & BADGES / ALBUM     -->
+      <!-- ========================================== -->
+      <div id="view-badges" class="hidden-view">
+        <div class="badges-view-container">
+          <div class="badge-card-container" style="text-align:center;">
+            <h2 style="color:var(--primary-pink); font-weight:900;">BỘ SƯU TẬP STICKER 🦄</h2>
+            <p style="font-size:14px; color:#4A5568; margin-top:8px;">
+              Cứ 3 sao tích lũy bé nhận được 1 hình dán dễ thương đó!
+            </p>
+            <div style="font-size:24px; font-weight:900; margin-top:12px; color:var(--primary-blue)">
+              Bé đã nhận: <span id="stickers-earned-count" style="font-size:32px; color:var(--primary-pink);">0</span> sticker 🎉
+            </div>
+          </div>
+
+          <div class="badge-card-container">
+            <h3 style="font-weight:900; margin-bottom:12px; color:var(--text-dark);">Huy hiệu chủ đề đã mở:</h3>
+            <div id="badges-grid-album" class="badges-album-grid">
+              <!-- Grid items populated via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 6: SETTINGS / PARENT CONTROLS         -->
+      <!-- ========================================== -->
+      <div id="view-settings" class="hidden-view">
+        <div class="settings-view-container">
+          <h2 style="font-weight:900; color:var(--text-dark);">Góc Bố Mẹ ⚙️</h2>
+
+          <div class="settings-card">
+            <!-- Audio Volume -->
+            <div class="settings-row">
+              <label class="settings-label">🔊 Âm lượng giọng đọc:</label>
+              <div class="settings-slider-row">
+                <span>🔈</span>
+                <input type="range" id="slider-volume" class="settings-slider" min="0" max="100" value="80">
+                <span>🔊</span>
+              </div>
+            </div>
+
+            <!-- Translation toggle -->
+            <div class="toggle-container">
+              <span class="toggle-switch-label">🇻🇳 Hiển thị nghĩa tiếng Việt</span>
+              <label style="position:relative; display:inline-block;">
+                <input type="checkbox" id="toggle-translation" class="switch-input-element" checked>
+                <div class="switch-rail-ui"></div>
+              </label>
+            </div>
+
+            <!-- Speech Speed -->
+            <div class="toggle-container">
+              <span class="toggle-switch-label">🐢 Tốc độ nói chậm mặc định</span>
+              <label style="position:relative; display:inline-block;">
+                <input type="checkbox" id="toggle-playback-speed" class="switch-input-element">
+                <div class="switch-rail-ui"></div>
+              </label>
+            </div>
+
+            <!-- Reset Progress -->
+            <div style="margin-top:12px;">
+              <button id="btn-reset-progress" class="secondary-btn" style="background-color: var(--primary-pink); color:#FFFFFF; width:100%; padding:14px; border-radius:18px; font-weight:800;">
+                🧹 Xóa tiến trình học (Làm lại từ đầu)
+              </button>
+            </div>
+          </div>
+
+          <!-- Archimedes Camp Info banner -->
+          <div class="about-banner">
+            <h4 class="about-title">COLOR ME – Archimedes Summer Camp</h4>
+            <p class="about-desc">
+              Ứng dụng ôn tập tiếng Anh dành riêng cho học viên trại hè "COLOR ME". Giúp các bé ghi nhớ từ vựng qua tương tác trực quan, âm thanh sống động và thực hành giọng nói.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Bottom Tab Navigation -->
+    <nav class="bottom-nav">
+      <button id="nav-home" class="nav-tab active">
+        <span class="nav-tab-icon">🏠</span>
+        <span class="nav-tab-label">Trang chủ</span>
+      </button>
+      <button id="nav-badges" class="nav-tab">
+        <span class="nav-tab-icon">🏆</span>
+        <span class="nav-tab-label">Thành tích</span>
+      </button>
+      <button id="nav-settings" class="nav-tab">
+        <span class="nav-tab-icon">⚙️</span>
+        <span class="nav-tab-label">Cài đặt</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- Load Modules -->
+  <script src="js/data.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/games.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
