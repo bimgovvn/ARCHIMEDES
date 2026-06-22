@@ -80,6 +80,10 @@ const App = {
       AudioManager.playTap();
       this.navigateTo("view-settings");
     });
+    document.getElementById("nav-docs").addEventListener("click", () => {
+      AudioManager.playTap();
+      this.navigateTo("view-docs");
+    });
 
     // Back buttons
     document.querySelectorAll(".back-btn").forEach(btn => {
@@ -124,6 +128,9 @@ const App = {
     } else if (viewId === "view-badges") {
       document.getElementById("nav-badges").classList.add("active");
       this.renderBadges();
+    } else if (viewId === "view-docs") {
+      document.getElementById("nav-docs").classList.add("active");
+      this.renderDocs();
     } else if (viewId === "view-settings") {
       document.getElementById("nav-settings").classList.add("active");
     }
@@ -295,6 +302,9 @@ const App = {
       } else if (topicId === "animals") {
         actTitle = "🎮 Tiếng Ai Kêu Đó?";
         actDesc = "Nghe tiếng kêu đoán con vật";
+      } else if (topicId === "fruits") {
+        actTitle = "🎮 Chợ Quả Ngọt";
+        actDesc = "Nghe tiếng đọc đoán loại quả";
       }
 
       actCard.innerHTML = `
@@ -876,6 +886,8 @@ const App = {
       MiniGames.initShapesGame(gameContainerId, onComplete);
     } else if (topicId === "animals") {
       MiniGames.initAnimalsGame(gameContainerId, onComplete);
+    } else if (topicId === "fruits") {
+      MiniGames.initFruitsGame(gameContainerId, onComplete);
     }
 
     this.navigateTo("view-game");
@@ -1040,6 +1052,42 @@ const App = {
 
       this.navigateTo("view-home");
     };
+  },
+
+  renderDocs() {
+    const container = document.getElementById("docs-list-container");
+    if (!container) return;
+    container.innerHTML = "";
+
+    WORKSHEETS_DATA.forEach(doc => {
+      const card = document.createElement("div");
+      card.className = `doc-item-card doc-type-${doc.type}`;
+
+      card.innerHTML = `
+        <div class="doc-item-icon-frame">
+          ${doc.emoji}
+        </div>
+        <div class="doc-item-info">
+          <div class="doc-item-title">${doc.title}</div>
+          <div class="doc-item-desc">${doc.description}</div>
+          <div class="doc-item-meta">
+            <span class="doc-item-pages">📄 ${doc.pages} trang</span>
+          </div>
+        </div>
+        <button class="doc-action-btn">Xem & In 📥</button>
+      `;
+
+      const openPdf = (e) => {
+        e.stopPropagation();
+        AudioManager.playTap();
+        window.open('./docs/' + encodeURIComponent(doc.filename), '_blank');
+      };
+
+      card.addEventListener("click", openPdf);
+      card.querySelector(".doc-action-btn").addEventListener("click", openPdf);
+
+      container.appendChild(card);
+    });
   }
 };
 

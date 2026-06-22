@@ -90,6 +90,27 @@ const TOPICS_DATA = {
       { word: "Rabbit", vi: "Con thỏ", emoji: "🐰", soundType: "squeak" }
     ]
   },
+  fruits: {
+    id: "fruits",
+    titleVi: "Hoa quả & Rau củ",
+    titleEn: "Fruits & Veggies",
+    emoji: "🍓",
+    badgeId: "fruit_basket",
+    badgeEmoji: "🧺",
+    badgeName: "Huy hiệu Giỏ Trái Cây",
+    words: [
+      { word: "Banana", vi: "Quả chuối", emoji: "🍌", context: "I like to eat a banana.", contextVi: "Tớ thích ăn một quả chuối." },
+      { word: "Pear", vi: "Quả lê", emoji: "🍐", context: "This pear is sweet.", contextVi: "Quả lê này ngọt quá." },
+      { word: "Tomato", vi: "Quả cà chua", emoji: "🍅", context: "A red tomato.", contextVi: "Một quả cà chua màu đỏ." },
+      { word: "Carrot", vi: "Củ cà rốt", emoji: "🥕", context: "Rabbits love carrots.", contextVi: "Những chú thỏ yêu cà rốt." },
+      { word: "Onion", vi: "Củ hành tây", emoji: "🧅", context: "Peeling an onion makes me cry.", contextVi: "Bóc hành tây làm tớ chảy nước mắt." },
+      { word: "Orange", vi: "Quả cam", emoji: "🍊", context: "Orange juice is healthy.", contextVi: "Nước cam rất tốt cho sức khỏe." },
+      { word: "Pineapple", vi: "Quả dứa", emoji: "🍍", context: "Pineapple is yellow and juicy.", contextVi: "Quả dứa màu vàng và mọng nước." },
+      { word: "Potato", vi: "Củ khoai tây", emoji: "🥔", context: "Mashed potatoes are delicious.", contextVi: "Khoai tây nghiền ăn rất ngon." },
+      { word: "Broccoli", vi: "Súp lơ xanh", emoji: "🥦", context: "Eat your broccoli, it is good!", contextVi: "Hãy ăn súp lơ xanh nhé, tốt lắm đấy!" },
+      { word: "Strawberry", vi: "Quả dâu tây", emoji: "🍓", context: "Strawberries are bright red.", contextVi: "Những quả dâu tây có màu đỏ tươi." }
+    ]
+  },
   poem: {
     id: "poem",
     titleVi: "Bài thơ Bạn mới",
@@ -109,3 +130,72 @@ const TOPICS_DATA = {
     ]
   }
 };
+
+// Metadata for PDF worksheets in the docs folder
+const WORKSHEETS_DATA = [
+  {
+    filename: "LET_S START 2022-PHIẾU TỰ LUYỆN SỐ 1.pdf",
+    title: "Phiếu Tự Luyện Số 1",
+    description: "Học chữ cái (a, u, e, i), đếm dâu tây, nối phép tính rùa, nhận biết hình khối.",
+    emoji: "✏️",
+    pages: 4,
+    type: "vietnamese_math"
+  },
+  {
+    filename: "LET_S START 2022-PHIẾU TỰ LUYỆN SỐ 2.pdf",
+    title: "Phiếu Tự Luyện Số 2",
+    description: "Tập đọc từ/câu, tô âm (m, n, h), tìm quy luật, so sánh số, phân biệt chẵn/lẻ.",
+    emoji: "📖",
+    pages: 4,
+    type: "vietnamese_math"
+  },
+  {
+    filename: "LET_S START 2022-PHIẾU TỰ LUYỆN SỐ 3.pdf",
+    title: "Phiếu Tự Luyện Số 3",
+    description: "Ghép chữ với tranh, gạch chân âm 'r', ghép câu tiếng Việt, làm toán xe ô tô.",
+    emoji: "🧩",
+    pages: 4,
+    type: "vietnamese_math"
+  },
+  {
+    filename: "Phiếu trải nghiệm 14_03.pdf",
+    title: "Phiếu Trải Nghiệm 14/03",
+    description: "Làm toán tia số, phép cộng thêm/được, ghép hình vuông, truyện Gấu con cảm ơn.",
+    emoji: "🌟",
+    pages: 5,
+    type: "general"
+  },
+  {
+    filename: "ARCH- SOI GUONG - CHIEU VAT.pdf",
+    title: "Phiếu Soi Gương & Chiếu Vật",
+    description: "Bài tập tư duy không gian: Nhìn vật qua gương soi và hướng chiếu ánh sáng.",
+    emoji: "🪞",
+    pages: 16,
+    type: "spatial"
+  },
+  {
+    filename: "Sudoku hình ảnh.pdf",
+    title: "Trò chơi Sudoku Hình Ảnh",
+    description: "51 trang giải đố Sudoku bằng hình ảnh ngộ nghĩnh kích thích trí não của bé.",
+    emoji: "🦊",
+    pages: 51,
+    type: "puzzle"
+  },
+  {
+    filename: "Top view worksheet.pdf",
+    title: "Phiếu Góc Nhìn Từ Trên (Top View)",
+    description: "Rèn luyện khả năng quan sát và hình dung vật thể từ góc nhìn phía trên cao.",
+    emoji: "🚁",
+    pages: 32,
+    type: "spatial"
+  },
+  {
+    filename: "Phiếu tự luyện số 1 2023.pdf",
+    title: "Phiếu Tự Luyện 2023",
+    description: "Đề bài tập ôn hè rèn luyện tư duy toán học và ngôn ngữ tổng hợp.",
+    emoji: "🍀",
+    pages: 2,
+    type: "general"
+  }
+];
+

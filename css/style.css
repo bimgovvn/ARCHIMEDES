@@ -292,6 +292,8 @@ body {
 .topic-card-shapes { background-color: var(--bg-light-blue); border: 3px solid #BEE3F8; }
 .topic-card-animals { background-color: var(--bg-light-green); border: 3px solid #C6F6D5; }
 .topic-card-poem { background-color: #FFF0E6; border: 3px solid #FFD8A8; }
+.topic-card-fruits { background-color: #FFEBF0; border: 3px solid #FFB8C6; }
+
 
 /* Sub-views headers & back button */
 .view-navigation-bar {
@@ -1525,3 +1527,115 @@ body {
     transform: scale(1) rotate(-8deg);
   }
 }
+
+/* ==========================================
+   PDF WORKSHEETS STYLING
+   ========================================== */
+.docs-view-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.docs-list-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.doc-item-card {
+  background-color: #FFFFFF;
+  border: 3px solid #E2E8F0;
+  border-radius: 26px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: var(--shadow-playful);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.doc-item-card:active {
+  transform: translateY(3px);
+  box-shadow: var(--shadow-active);
+}
+
+.doc-item-card.doc-type-vietnamese_math { border-color: #FFEAA7; }
+.doc-item-card.doc-type-spatial { border-color: #BEE3F8; }
+.doc-item-card.doc-type-puzzle { border-color: #FFCCD5; }
+.doc-item-card.doc-type-general { border-color: #C6F6D5; }
+
+.doc-item-icon-frame {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  flex-shrink: 0;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.doc-type-vietnamese_math .doc-item-icon-frame { background-color: var(--bg-light-yellow); }
+.doc-type-spatial .doc-item-icon-frame { background-color: var(--bg-light-blue); }
+.doc-type-puzzle .doc-item-icon-frame { background-color: var(--bg-light-pink); }
+.doc-type-general .doc-item-icon-frame { background-color: var(--bg-light-green); }
+
+.doc-item-info {
+  flex: 1;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
+.doc-item-title {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--text-dark);
+}
+
+.doc-item-desc {
+  font-size: 12px;
+  font-weight: 700;
+  color: #718096;
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.doc-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.doc-item-pages {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--primary-blue);
+  background-color: var(--bg-light-blue);
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.doc-action-btn {
+  background-color: var(--primary-green);
+  color: #FFFFFF;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #049f76;
+  transition: all 0.1s ease;
+  white-space: nowrap;
+}
+
+.doc-action-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #049f76;
+}
+

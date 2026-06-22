@@ -760,8 +760,164 @@ const MiniGames = {
         this.gameState.onComplete();
       }
     });
+  },
+
+  // ==========================================
+  // 5. FRUITS & VEGETABLES MATCH GAME
+  // ==========================================
+  initFruitsGame(containerId, onComplete) {
+    this.activeGame = "fruits";
+    this.gameState = {
+      score: 0,
+      targetScore: 3,
+      currentQuestion: null,
+      options: [],
+      onComplete: onComplete
+    };
+
+    const container = document.getElementById(containerId);
+    container.innerHTML = `
+      <div class="game-card fruits-game" style="border-color: var(--primary-pink)">
+        <h2 class="game-title" style="color: var(--primary-pink)">Chợ Quả Ngọt 🍓</h2>
+        <p class="game-instruction">Nghe kỹ phát âm tiếng Anh và chọn loại quả tương ứng nhé!</p>
+        
+        <div class="game-score-bar">
+          <div class="game-stars-progress">
+            <span class="fruit-star-indicator">⭐</span>
+            <span class="fruit-star-indicator">⭐</span>
+            <span class="fruit-star-indicator">⭐</span>
+          </div>
+        </div>
+
+        <div class="game-action-center">
+          <button id="fruits-listen-btn" class="speak-btn pulse-button" style="background-color: var(--primary-pink); box-shadow: 0 5px 0 #b93d56;">
+            🔊 Nghe Gọi Tên
+          </button>
+        </div>
+
+        <div id="fruits-options" class="animals-grid"></div>
+        <div id="fruits-feedback" class="game-feedback-text"></div>
+      </div>
+    `;
+
+    document.getElementById("fruits-listen-btn").addEventListener("click", () => {
+      if (this.gameState.currentQuestion) {
+        AudioManager.speak(this.gameState.currentQuestion.word, false);
+      }
+    });
+
+    this.nextFruitsQuestion();
+  },
+
+  nextFruitsQuestion() {
+    document.getElementById("fruits-feedback").innerText = "";
+
+    const stars = document.querySelectorAll(".fruit-star-indicator");
+    stars.forEach((star, idx) => {
+      if (idx < this.gameState.score) {
+        star.classList.add("earned");
+        star.style.opacity = "1";
+      } else {
+        star.classList.remove("earned");
+        star.style.opacity = "0.3";
+      }
+    });
+
+    if (this.gameState.score >= this.gameState.targetScore) {
+      this.completeGame();
+      return;
+    }
+
+    const fruitsData = TOPICS_DATA.fruits.words;
+
+    // Pick target
+    const target = fruitsData[Math.floor(Math.random() * fruitsData.length)];
+    this.gameState.currentQuestion = target;
+
+    // Play English pronunciation automatically
+    setTimeout(() => {
+      AudioManager.speak(target.word, false);
+    }, 450);
+
+    // Get 3 options (1 target, 2 distractors)
+    let options = [target];
+    while (options.length < 3) {
+      const r = fruitsData[Math.floor(Math.random() * fruitsData.length)];
+      if (!options.some(o => o.word === r.word)) {
+        options.push(r);
+      }
+    }
+    options.sort(() => Math.random() - 0.5);
+    this.gameState.options = options;
+
+    // Render option cards
+    const grid = document.getElementById("fruits-options");
+    grid.innerHTML = "";
+
+    options.forEach(opt => {
+      const card = document.createElement("button");
+      card.className = "animal-option-card";
+      card.style.borderColor = "#FFCCD5";
+      card.innerHTML = `
+        <span class="animal-emoji">${opt.emoji}</span>
+        <span class="animal-label-vi hidden-trans">${opt.vi}</span>
+      `;
+
+      const settings = AudioManager.getSettings();
+      if (settings.showTranslation) {
+        card.querySelector(".animal-label-vi").classList.remove("hidden-trans");
+      }
+
+      card.addEventListener("click", () => this.handleFruitSelect(opt, card));
+      grid.appendChild(card);
+    });
+  },
+
+  handleFruitSelect(selected, element) {
+    const isCorrect = selected.word === this.gameState.currentQuestion.word;
+    const cards = document.querySelectorAll(".animal-option-card");
+    cards.forEach(c => c.style.pointerEvents = "none");
+
+    if (isCorrect) {
+      element.classList.add("correct-bounce");
+      element.style.borderColor = "var(--primary-green)";
+      element.style.backgroundColor = "var(--bg-light-green)";
+      
+      AudioManager.playCorrect();
+      createConfetti(element);
+      this.gameState.score++;
+
+      const feedback = document.getElementById("fruits-feedback");
+      feedback.innerHTML = `<span class="happy-msg">Giỏi quá! Đó là ${selected.vi} (${selected.word}) 🍓</span>`;
+
+      // Speak english fruit name again
+      setTimeout(() => {
+        AudioManager.speak(selected.word, false);
+      }, 500);
+
+      setTimeout(() => {
+        this.nextFruitsQuestion();
+      }, 2200);
+    } else {
+      element.classList.add("incorrect-shake");
+      element.style.borderColor = "var(--primary-pink)";
+      element.style.backgroundColor = "var(--bg-light-pink)";
+      AudioManager.playTap();
+
+      const feedback = document.getElementById("fruits-feedback");
+      feedback.innerHTML = `<span class="retry-msg">Chưa đúng rồi! Bé nghe lại phát âm nhé! 👂</span>`;
+
+      setTimeout(() => {
+        element.classList.remove("incorrect-shake");
+        element.style.borderColor = "#FFCCD5";
+        element.style.backgroundColor = "#FFFFFF";
+        cards.forEach(c => c.style.pointerEvents = "auto");
+        feedback.innerText = "";
+      }, 1200);
+    }
   }
 };
+
 
 // Simple confetti generator using purely JS and CSS transitions for lightweight offline usage
 function createConfetti(targetEl, customColor = null, count = 15) {
