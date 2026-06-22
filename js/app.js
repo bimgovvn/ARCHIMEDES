@@ -130,7 +130,7 @@ const App = {
       this.renderBadges();
     } else if (viewId === "view-docs") {
       document.getElementById("nav-docs").classList.add("active");
-      this.renderDocs();
+      this.renderChallenges();
     } else if (viewId === "view-settings") {
       document.getElementById("nav-settings").classList.add("active");
     }
@@ -1054,40 +1054,73 @@ const App = {
     };
   },
 
-  renderDocs() {
-    const container = document.getElementById("docs-list-container");
+  renderChallenges() {
+    const container = document.getElementById("challenges-list-container");
     if (!container) return;
     container.innerHTML = "";
 
-    WORKSHEETS_DATA.forEach(doc => {
-      const card = document.createElement("div");
-      card.className = `doc-item-card doc-type-${doc.type}`;
+    this.state.completedChallenges = this.state.completedChallenges || {};
+
+    CHALLENGES_DATA.forEach(challenge => {
+      const card = document.createElement("button");
+      const isDone = this.state.completedChallenges[challenge.id] === true;
+      card.className = "mode-card" + (isDone ? " completed" : "");
 
       card.innerHTML = `
-        <div class="doc-item-icon-frame">
-          ${doc.emoji}
-        </div>
-        <div class="doc-item-info">
-          <div class="doc-item-title">${doc.title}</div>
-          <div class="doc-item-desc">${doc.description}</div>
-          <div class="doc-item-meta">
-            <span class="doc-item-pages">📄 ${doc.pages} trang</span>
+        <div class="mode-card-icon">${challenge.emoji}</div>
+        <div class="mode-card-info">
+          <div class="mode-card-title">${challenge.title}</div>
+          <div class="mode-card-desc">${challenge.description}</div>
+          <div style="margin-top: 4px; font-size: 11px; font-weight: 800; color: var(--primary-pink)">
+            Độ khó: ${challenge.difficulty} | Thưởng: ${challenge.reward}
           </div>
         </div>
-        <button class="doc-action-btn">Xem & In 📥</button>
+        <div class="mode-card-check">✓</div>
       `;
 
-      const openPdf = (e) => {
-        e.stopPropagation();
+      card.addEventListener("click", () => {
         AudioManager.playTap();
-        window.open('./docs/' + encodeURIComponent(doc.filename), '_blank');
-      };
-
-      card.addEventListener("click", openPdf);
-      card.querySelector(".doc-action-btn").addEventListener("click", openPdf);
+        this.startChallengeGame(challenge.id);
+      });
 
       container.appendChild(card);
     });
+  },
+
+  startChallengeGame(challengeId) {
+    const gameContainerId = "game-interactive-surface";
+    const onComplete = () => {
+      // Mark as completed
+      this.state.completedChallenges = this.state.completedChallenges || {};
+      this.state.completedChallenges[challengeId] = true;
+      
+      // Award 3 stars
+      this.state.stars = (this.state.stars || 0) + 3;
+      
+      // Earned sticker logic (every 3 stars = 1 sticker)
+      if (this.state.stars % 3 === 0) {
+        this.state.unlockedStickers = (this.state.unlockedStickers || 0) + 1;
+      }
+      
+      this.saveState();
+      
+      // Navigate back to challenges page
+      this.navigateTo("view-docs");
+    };
+
+    if (challengeId === "turtle_math") {
+      MiniGames.initTurtleMathGame(gameContainerId, onComplete);
+    } else if (challengeId === "sound_hunt") {
+      MiniGames.initSoundHuntGame(gameContainerId, onComplete);
+    } else if (challengeId === "sentence_builder") {
+      MiniGames.initSentenceBuilderGame(gameContainerId, onComplete);
+    } else if (challengeId === "balloon_pop") {
+      MiniGames.initBalloonPopGame(gameContainerId, onComplete);
+    } else if (challengeId === "story_quiz") {
+      MiniGames.initStoryQuizGame(gameContainerId, onComplete);
+    }
+
+    this.navigateTo("view-game");
   }
 };
 

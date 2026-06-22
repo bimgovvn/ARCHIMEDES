@@ -915,8 +915,572 @@ const MiniGames = {
         feedback.innerText = "";
       }, 1200);
     }
+  },
+
+  // ==========================================
+  // CHALLENGE 1: TURTLE MATH MATCH GAME
+  // ==========================================
+  initTurtleMathGame(containerId, onComplete) {
+    this.activeGame = "turtle_math";
+    this.gameState = {
+      selectedEquation: null,
+      selectedEquationEl: null,
+      connectedCount: 0,
+      totalPairs: 4,
+      onComplete: onComplete
+    };
+
+    const equations = [
+      { id: "eq1", text: "2 + 1", result: 3 },
+      { id: "eq2", text: "5 - 3", result: 2 },
+      { id: "eq3", text: "3 + 2", result: 5 },
+      { id: "eq4", text: "2 + 2", result: 4 }
+    ];
+
+    const turtles = [
+      { result: 2, label: "🐢 Rùa số 2" },
+      { result: 3, label: "🐢 Rùa số 3" },
+      { result: 4, label: "🐢 Rùa số 4" },
+      { result: 5, label: "🐢 Rùa số 5" }
+    ];
+
+    // Shuffle both lists for randomness
+    equations.sort(() => Math.random() - 0.5);
+    turtles.sort(() => Math.random() - 0.5);
+
+    const container = document.getElementById(containerId);
+    container.innerHTML = `
+      <div class="game-card math-game" style="border-color: var(--primary-blue)">
+        <h2 class="game-title" style="color: var(--primary-blue)">Phép tính Rùa 🐢</h2>
+        <p class="game-instruction">Chạm phép tính bên trái, sau đó chạm chú Rùa mang kết quả đúng bên phải!</p>
+        
+        <div class="math-match-container">
+          <div class="equation-col" id="eq-column"></div>
+          <div class="turtle-col" id="turtle-column"></div>
+        </div>
+        
+        <div id="math-feedback" class="game-feedback-text"></div>
+      </div>
+    `;
+
+    const eqCol = document.getElementById("eq-column");
+    const turtleCol = document.getElementById("turtle-column");
+
+    equations.forEach(eq => {
+      const btn = document.createElement("button");
+      btn.className = "equation-btn";
+      btn.innerText = eq.text;
+      btn.dataset.id = eq.id;
+      btn.dataset.result = eq.result;
+      
+      btn.addEventListener("click", () => {
+        AudioManager.playTap();
+        // Remove selection from all equation buttons
+        document.querySelectorAll(".equation-btn").forEach(b => b.classList.remove("selected"));
+        
+        this.gameState.selectedEquation = eq;
+        this.gameState.selectedEquationEl = btn;
+        btn.classList.add("selected");
+      });
+      eqCol.appendChild(btn);
+    });
+
+    turtles.forEach(t => {
+      const btn = document.createElement("button");
+      btn.className = "turtle-btn";
+      btn.innerText = t.label;
+      btn.dataset.result = t.result;
+
+      btn.addEventListener("click", () => {
+        if (!this.gameState.selectedEquation) {
+          AudioManager.playTap();
+          const feedback = document.getElementById("math-feedback");
+          feedback.innerHTML = `<span class="retry-msg">Bé hãy chọn phép tính bên trái trước nhé! 👉</span>`;
+          return;
+        }
+
+        const eq = this.gameState.selectedEquation;
+        const eqEl = this.gameState.selectedEquationEl;
+
+        const isCorrect = eq.result === t.result;
+
+        if (isCorrect) {
+          AudioManager.playCorrect();
+          createConfetti(btn);
+
+          // Mark as connected
+          eqEl.classList.remove("selected");
+          eqEl.classList.add("connected");
+          btn.classList.add("connected");
+          
+          eqEl.innerText = `${eq.text} = ${eq.result} ✓`;
+          btn.innerText = `🐢 Số ${t.result} ✓`;
+
+          this.gameState.selectedEquation = null;
+          this.gameState.selectedEquationEl = null;
+          this.gameState.connectedCount++;
+
+          const feedback = document.getElementById("math-feedback");
+          feedback.innerHTML = `<span class="happy-msg">Chính xác! ${eq.text} = ${eq.result} 🎉</span>`;
+
+          if (this.gameState.connectedCount >= this.gameState.totalPairs) {
+            setTimeout(() => {
+              this.completeGame();
+            }, 1500);
+          }
+        } else {
+          AudioManager.playTap();
+          btn.classList.add("incorrect-shake");
+          eqEl.classList.add("incorrect-shake");
+
+          const feedback = document.getElementById("math-feedback");
+          feedback.innerHTML = `<span class="retry-msg">Tính lại xem nào, ${eq.text} không bằng ${t.result} đâu bé yêu! 💪</span>`;
+
+          setTimeout(() => {
+            btn.classList.remove("incorrect-shake");
+            eqEl.classList.remove("incorrect-shake");
+          }, 1000);
+        }
+      });
+      turtleCol.appendChild(btn);
+    });
+  },
+
+  // ==========================================
+  // CHALLENGE 2: SOUND HUNT GAME
+  // ==========================================
+  initSoundHuntGame(containerId, onComplete) {
+    this.activeGame = "sound_hunt";
+    
+    // Choose either target letter "l" or "r"
+    const targetLetter = Math.random() > 0.5 ? "l" : "r";
+    
+    const wordsPool = targetLetter === "l" ? [
+      { word: "lá", correct: true },
+      { word: "lò cò", correct: true },
+      { word: "cò lả", correct: true },
+      { word: "le le", correct: true },
+      { word: "lác cờ", correct: true },
+      { word: "đỏ", correct: false },
+      { word: "nơ", correct: false },
+      { word: "bố mẹ", correct: false },
+      { word: "ca nô", correct: false }
+    ] : [
+      { word: "gà ri", correct: true },
+      { word: "đi ra", correct: true },
+      { word: "nở rộ", correct: true },
+      { word: "rễ đa", correct: true },
+      { word: "rò rỉ", correct: true },
+      { word: "lọ sứ", correct: false },
+      { word: "do dự", correct: false },
+      { word: "tô đỏ", correct: false },
+      { word: "kẻ ô", correct: false }
+    ];
+
+    // Shuffle pool
+    wordsPool.sort(() => Math.random() - 0.5);
+
+    const totalTargets = wordsPool.filter(w => w.correct).length;
+
+    this.gameState = {
+      targetLetter: targetLetter,
+      words: wordsPool,
+      foundCount: 0,
+      totalTargets: totalTargets,
+      onComplete: onComplete
+    };
+
+    const container = document.getElementById(containerId);
+    container.innerHTML = `
+      <div class="game-card sound-game" style="border-color: var(--primary-green)">
+        <h2 class="game-title" style="color: var(--primary-green)">Săn âm tìm chữ 🔍</h2>
+        <p class="game-instruction">Hãy tìm tất cả các từ có chứa âm <strong style="font-size: 20px; color: var(--primary-pink);">'${targetLetter.toUpperCase()}'</strong> nhé!</p>
+        
+        <div style="font-size: 14px; font-weight: 800; margin-top: 8px;">
+          Đã tìm được: <span id="hunt-found-count" class="badge-count" style="background-color: var(--bg-light-green); color: var(--primary-green);">0</span> / ${totalTargets} từ
+        </div>
+
+        <div id="sound-hunt-options" class="sound-hunt-grid"></div>
+        <div id="hunt-feedback" class="game-feedback-text"></div>
+      </div>
+    `;
+
+    const grid = document.getElementById("sound-hunt-options");
+    wordsPool.forEach((item, idx) => {
+      const card = document.createElement("button");
+      card.className = "sound-option-card";
+      card.innerText = item.word;
+
+      card.addEventListener("click", () => {
+        if (card.classList.contains("correct")) return;
+
+        if (item.correct) {
+          AudioManager.playCorrect();
+          createConfetti(card);
+          card.classList.add("correct");
+          card.innerText = `${item.word} ✓`;
+
+          this.gameState.foundCount++;
+          document.getElementById("hunt-found-count").innerText = this.gameState.foundCount;
+
+          const feedback = document.getElementById("hunt-feedback");
+          feedback.innerHTML = `<span class="happy-msg">Đúng rồi! Từ "${item.word}" có chứa âm '${targetLetter}'! 🎉</span>`;
+
+          if (this.gameState.foundCount >= this.gameState.totalTargets) {
+            setTimeout(() => {
+              this.completeGame();
+            }, 1800);
+          }
+        } else {
+          AudioManager.playTap();
+          card.classList.add("incorrect-shake");
+
+          const feedback = document.getElementById("hunt-feedback");
+          feedback.innerHTML = `<span class="retry-msg">Từ "${item.word}" không chứa âm '${targetLetter}' rồi bé ơi! 🥺</span>`;
+
+          setTimeout(() => {
+            card.classList.remove("incorrect-shake");
+          }, 1000);
+        }
+      });
+
+      grid.appendChild(card);
+    });
+  },
+
+  // ==========================================
+  // CHALLENGE 3: SENTENCE BUILDER GAME
+  // ==========================================
+  initSentenceBuilderGame(containerId, onComplete) {
+    this.activeGame = "sentence_builder";
+    
+    const correctOrder = ["Bà", "có", "su su,", "củ sả."];
+    const initialPool = ["có", "Bà", "củ sả.", "su su,"];
+    
+    this.gameState = {
+      correctOrder: correctOrder,
+      placedWords: [],
+      onComplete: onComplete
+    };
+
+    const container = document.getElementById(containerId);
+    container.innerHTML = `
+      <div class="game-card sentence-game" style="border-color: var(--primary-pink)">
+        <h2 class="game-title" style="color: var(--primary-pink)">Ghép câu hoàn chỉnh ✍️</h2>
+        <p class="game-instruction">Chạm các khối từ dưới đây theo đúng thứ tự để tạo câu tiếng Việt có nghĩa nhé!</p>
+        
+        <div class="sentence-dropzone" id="sentence-zone">
+          <span style="color: #A0AEC0; font-size: 14px; font-weight: 700;">Câu của bé sẽ hiện ở đây...</span>
+        </div>
+
+        <div class="sentence-word-pool" id="word-pool"></div>
+        
+        <div style="display: flex; gap: 10px; width: 100%; justify-content: center; margin-top: 10px;">
+          <button id="btn-sentence-reset" class="secondary-btn" style="background-color: var(--primary-pink); color: white;">Làm lại 🧹</button>
+        </div>
+        <div id="sentence-feedback" class="game-feedback-text"></div>
+      </div>
+    `;
+
+    const renderPool = () => {
+      const poolContainer = document.getElementById("word-pool");
+      poolContainer.innerHTML = "";
+
+      initialPool.forEach((word, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "sentence-word-btn";
+        btn.innerText = word;
+        btn.dataset.index = idx;
+
+        const isUsed = this.gameState.placedWords.some(item => item.idx === idx);
+        if (isUsed) {
+          btn.classList.add("used");
+        }
+
+        btn.addEventListener("click", () => {
+          AudioManager.playTap();
+          this.gameState.placedWords.push({ word: word, idx: idx });
+          
+          btn.classList.add("used");
+          updateDropzone();
+          checkSentenceResult();
+        });
+
+        poolContainer.appendChild(btn);
+      });
+    };
+
+    const updateDropzone = () => {
+      const zone = document.getElementById("sentence-zone");
+      zone.innerHTML = "";
+
+      if (this.gameState.placedWords.length === 0) {
+        zone.innerHTML = `<span style="color: #A0AEC0; font-size: 14px; font-weight: 700;">Câu của bé sẽ hiện ở đây...</span>`;
+        return;
+      }
+
+      this.gameState.placedWords.forEach(item => {
+        const bubble = document.createElement("span");
+        bubble.className = "recipe-badge unlocked";
+        bubble.style.fontSize = "16px";
+        bubble.style.padding = "8px 14px";
+        bubble.innerText = item.word;
+        zone.appendChild(bubble);
+      });
+    };
+
+    const checkSentenceResult = () => {
+      if (this.gameState.placedWords.length < correctOrder.length) return;
+
+      const userSentence = this.gameState.placedWords.map(item => item.word);
+      
+      // Check correct sequence
+      const isCorrect = userSentence.every((w, i) => w === correctOrder[i]);
+
+      const feedback = document.getElementById("sentence-feedback");
+      if (isCorrect) {
+        AudioManager.playCorrect();
+        createConfetti(document.getElementById("sentence-zone"));
+
+        feedback.innerHTML = `<span class="happy-msg">Tuyệt vời! Bé đã ghép đúng câu: "Bà có su su, củ sả." 🎉</span>`;
+        
+        setTimeout(() => {
+          this.completeGame();
+        }, 2200);
+      } else {
+        AudioManager.playTap();
+        const zone = document.getElementById("sentence-zone");
+        zone.classList.add("incorrect-shake");
+        
+        feedback.innerHTML = `<span class="retry-msg">Câu ghép chưa đúng nghĩa rồi bé ơi. Hãy nhấn nút làm lại nhé! 🧹</span>`;
+        
+        setTimeout(() => {
+          zone.classList.remove("incorrect-shake");
+        }, 1000);
+      }
+    };
+
+    document.getElementById("btn-sentence-reset").addEventListener("click", () => {
+      AudioManager.playTap();
+      this.gameState.placedWords = [];
+      document.getElementById("sentence-feedback").innerText = "";
+      updateDropzone();
+      renderPool();
+    });
+
+    renderPool();
+  },
+
+  // ==========================================
+  // CHALLENGE 4: BALLOON POP GAME
+  // ==========================================
+  initBalloonPopGame(containerId, onComplete) {
+    this.activeGame = "balloon_pop";
+    
+    // Choose to target even or odd numbers
+    const targetType = Math.random() > 0.5 ? "even" : "odd";
+
+    const numbers = [
+      { val: 1, type: "odd" },
+      { val: 2, type: "even" },
+      { val: 3, type: "odd" },
+      { val: 4, type: "even" },
+      { val: 5, type: "odd" },
+      { val: 6, type: "even" },
+      { val: 7, type: "odd" },
+      { val: 8, type: "even" }
+    ];
+
+    const targetCount = numbers.filter(n => n.type === targetType).length;
+
+    this.gameState = {
+      targetType: targetType,
+      numbers: numbers,
+      poppedCount: 0,
+      totalTargets: targetCount,
+      onComplete: onComplete
+    };
+
+    const container = document.getElementById(containerId);
+    container.innerHTML = `
+      <div class="game-card balloons-game" style="border-color: var(--primary-yellow)">
+        <h2 class="game-title" style="color: var(--primary-yellow); filter: brightness(0.8);">Bóng bay số học 🎈</h2>
+        <p class="game-instruction">Hãy chạm nổ các bong bóng mang số <strong style="font-size: 20px; color: var(--primary-pink);">${targetType === "even" ? "CHẴN" : "LẺ"}</strong> nhé!</p>
+        
+        <div style="font-size: 14px; font-weight: 800; margin-top: 8px;">
+          Đã nổ: <span id="balloons-popped-count" class="badge-count" style="background-color: var(--bg-light-yellow); color: var(--primary-yellow); filter: brightness(0.85);">0</span> / ${targetCount} bóng
+        </div>
+
+        <div id="balloons-list" class="balloons-container"></div>
+        <div id="balloons-feedback" class="game-feedback-text"></div>
+      </div>
+    `;
+
+    const balloonArea = document.getElementById("balloons-list");
+    
+    // Define cute colors for balloons
+    const balloonColors = ["#FF6B8B", "#FFD166", "#06D6A0", "#118AB2", "#AF52DE", "#FF9500", "#52DEAF", "#AFDE52"];
+
+    numbers.forEach((num, idx) => {
+      const balloon = document.createElement("button");
+      balloon.className = "balloon-item";
+      balloon.innerText = num.val;
+      balloon.style.backgroundColor = balloonColors[idx % balloonColors.length];
+      balloon.style.color = "#FFFFFF";
+      balloon.style.borderColor = balloonColors[idx % balloonColors.length];
+
+      balloon.addEventListener("click", () => {
+        if (balloon.classList.contains("popped")) return;
+
+        const isCorrect = num.type === targetType;
+
+        if (isCorrect) {
+          AudioManager.playCorrect();
+          createConfetti(balloon);
+          balloon.classList.add("popped");
+
+          this.gameState.poppedCount++;
+          document.getElementById("balloons-popped-count").innerText = this.gameState.poppedCount;
+
+          const feedback = document.getElementById("balloons-feedback");
+          feedback.innerHTML = `<span class="happy-msg">Bùm! Đúng rồi, số ${num.val} là số ${targetType === "even" ? "chẵn" : "lẻ"}! 🎈</span>`;
+
+          if (this.gameState.poppedCount >= this.gameState.totalTargets) {
+            setTimeout(() => {
+              this.completeGame();
+            }, 1500);
+          }
+        } else {
+          AudioManager.playTap();
+          balloon.classList.add("incorrect-shake");
+
+          const feedback = document.getElementById("balloons-feedback");
+          feedback.innerHTML = `<span class="retry-msg">Ôi, số ${num.val} là số ${num.type === "even" ? "chẵn" : "lẻ"} mà bé ơi! 🥺</span>`;
+
+          setTimeout(() => {
+            balloon.classList.remove("incorrect-shake");
+          }, 1000);
+        }
+      });
+
+      balloonArea.appendChild(balloon);
+    });
+  },
+
+  // ==========================================
+  // CHALLENGE 5: STORY QUIZ GAME
+  // ==========================================
+  initStoryQuizGame(containerId, onComplete) {
+    this.activeGame = "story_quiz";
+    
+    const questions = [
+      {
+        q: "1. Để được sang nhà bạn Khỉ chơi, Gấu con đã xin phép ai?",
+        options: [
+          { text: "A. Gấu mẹ", correct: true },
+          { text: "B. Gấu bố", correct: false },
+          { text: "C. Bác Voi", correct: false }
+        ]
+      },
+      {
+        q: "2. Gấu con đâm sầm vào Sóc làm đổ giỏ quả. Gấu con cần nói gì?",
+        options: [
+          { text: "A. Cháu cảm ơn Sóc!", correct: false },
+          { text: "B. Tớ xin lỗi Sóc nhé!", correct: true },
+          { text: "C. Chào buổi sáng bạn Sóc!", correct: false }
+        ]
+      },
+      {
+        q: "3. Khi bác Voi cứu Gấu con khỏi hố sâu, Gấu con đã nói gì?",
+        options: [
+          { text: "A. Cháu xin lỗi bác!", correct: false },
+          { text: "B. Cháu cảm ơn bác Voi ạ!", correct: true },
+          { text: "C. Chúc bác ngủ ngon!", correct: false }
+        ]
+      }
+    ];
+
+    this.gameState = {
+      questions: questions,
+      currentIdx: 0,
+      onComplete: onComplete
+    };
+
+    const container = document.getElementById(containerId);
+    container.innerHTML = `
+      <div class="game-card quiz-game" style="border-color: var(--primary-pink)">
+        <h2 class="game-title" style="color: var(--primary-pink)">Chuyện kể Gấu con 🐻</h2>
+        <p class="game-instruction">Hãy trả lời 3 câu hỏi trắc nghiệm kiểm tra bài học của Gấu con nhé!</p>
+        
+        <div style="font-size: 14px; font-weight: 800; margin-top: 8px;">
+          Tiến trình: <span id="quiz-progress-text" class="badge-count" style="background-color: var(--bg-light-pink); color: var(--primary-pink);">1 / 3</span> câu hỏi
+        </div>
+
+        <div id="quiz-question-box" style="margin-top: 16px; font-size: 16px; font-weight: 800; text-align: left; color: var(--text-dark);"></div>
+        <div id="quiz-options" class="quiz-options-container"></div>
+        <div id="quiz-feedback" class="game-feedback-text"></div>
+      </div>
+    `;
+
+    this.renderQuizQuestion();
+  },
+
+  renderQuizQuestion() {
+    document.getElementById("quiz-feedback").innerText = "";
+
+    const idx = this.gameState.currentIdx;
+    const qData = this.gameState.questions[idx];
+
+    document.getElementById("quiz-progress-text").innerText = `${idx + 1} / 3`;
+    document.getElementById("quiz-question-box").innerText = qData.q;
+
+    const optionsContainer = document.getElementById("quiz-options");
+    optionsContainer.innerHTML = "";
+
+    qData.options.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.className = "quiz-option-btn";
+      btn.innerText = opt.text;
+
+      btn.addEventListener("click", () => {
+        // Disable other buttons during answer highlight
+        document.querySelectorAll(".quiz-option-btn").forEach(b => b.style.pointerEvents = "none");
+
+        if (opt.correct) {
+          AudioManager.playCorrect();
+          createConfetti(btn);
+          btn.classList.add("correct");
+
+          const feedback = document.getElementById("quiz-feedback");
+          feedback.innerHTML = `<span class="happy-msg">Tuyệt vời! Bé đã trả lời đúng câu hỏi này! 🎉</span>`;
+
+          setTimeout(() => {
+            this.gameState.currentIdx++;
+            if (this.gameState.currentIdx < this.gameState.questions.length) {
+              this.renderQuizQuestion();
+            } else {
+              this.completeGame();
+            }
+          }, 2000);
+        } else {
+          AudioManager.playTap();
+          btn.classList.add("incorrect");
+          
+          const feedback = document.getElementById("quiz-feedback");
+          feedback.innerHTML = `<span class="retry-msg">Bé chọn lại xem nào, câu trả lời này chưa chính xác rồi! 💪</span>`;
+
+          setTimeout(() => {
+            btn.classList.remove("incorrect");
+            document.querySelectorAll(".quiz-option-btn").forEach(b => b.style.pointerEvents = "auto");
+          }, 1500);
+        }
+      });
+
+      optionsContainer.appendChild(btn);
+    });
   }
 };
+
 
 
 // Simple confetti generator using purely JS and CSS transitions for lightweight offline usage

@@ -131,71 +131,47 @@ const TOPICS_DATA = {
   }
 };
 
-// Metadata for PDF worksheets in the docs folder
-const WORKSHEETS_DATA = [
+// Metadata for interactive challenges based on worksheets
+const CHALLENGES_DATA = [
   {
-    filename: "LET_S START 2022-PHIẾU TỰ LUYỆN SỐ 1.pdf",
-    title: "Phiếu Tự Luyện Số 1",
-    description: "Học chữ cái (a, u, e, i), đếm dâu tây, nối phép tính rùa, nhận biết hình khối.",
-    emoji: "✏️",
-    pages: 4,
-    type: "vietnamese_math"
+    id: "turtle_math",
+    title: "Thử thách 1: Phép tính Rùa 🐢",
+    description: "Nối các phép tính cộng trừ thú vị với các chú rùa mang số kết quả đúng.",
+    emoji: "🐢",
+    difficulty: "Dễ",
+    reward: "3 sao ⭐"
   },
   {
-    filename: "LET_S START 2022-PHIẾU TỰ LUYỆN SỐ 2.pdf",
-    title: "Phiếu Tự Luyện Số 2",
-    description: "Tập đọc từ/câu, tô âm (m, n, h), tìm quy luật, so sánh số, phân biệt chẵn/lẻ.",
-    emoji: "📖",
-    pages: 4,
-    type: "vietnamese_math"
+    id: "sound_hunt",
+    title: "Thử thách 2: Săn âm tìm chữ 🔍",
+    description: "Nhận biết âm tiếng Việt: Tìm tất cả các từ có chứa âm 'l' hoặc 'r' ẩn giấu.",
+    emoji: "🔍",
+    difficulty: "Dễ",
+    reward: "3 sao ⭐"
   },
   {
-    filename: "LET_S START 2022-PHIẾU TỰ LUYỆN SỐ 3.pdf",
-    title: "Phiếu Tự Luyện Số 3",
-    description: "Ghép chữ với tranh, gạch chân âm 'r', ghép câu tiếng Việt, làm toán xe ô tô.",
-    emoji: "🧩",
-    pages: 4,
-    type: "vietnamese_math"
+    id: "sentence_builder",
+    title: "Thử thách 3: Ghép câu hoàn chỉnh ✍️",
+    description: "Sắp xếp các khối từ bị xáo trộn để tạo thành một câu có nghĩa.",
+    emoji: "✍️",
+    difficulty: "Trung bình",
+    reward: "3 sao ⭐"
   },
   {
-    filename: "Phiếu trải nghiệm 14_03.pdf",
-    title: "Phiếu Trải Nghiệm 14/03",
-    description: "Làm toán tia số, phép cộng thêm/được, ghép hình vuông, truyện Gấu con cảm ơn.",
-    emoji: "🌟",
-    pages: 5,
-    type: "general"
+    id: "balloon_pop",
+    title: "Thử thách 4: Bóng bay Chẵn/Lẻ 🎈",
+    description: "Phân biệt số Chẵn và số Lẻ bằng cách chạm nổ những chiếc bóng bay sắc màu.",
+    emoji: "🎈",
+    difficulty: "Dễ",
+    reward: "3 sao ⭐"
   },
   {
-    filename: "ARCH- SOI GUONG - CHIEU VAT.pdf",
-    title: "Phiếu Soi Gương & Chiếu Vật",
-    description: "Bài tập tư duy không gian: Nhìn vật qua gương soi và hướng chiếu ánh sáng.",
-    emoji: "🪞",
-    pages: 16,
-    type: "spatial"
-  },
-  {
-    filename: "Sudoku hình ảnh.pdf",
-    title: "Trò chơi Sudoku Hình Ảnh",
-    description: "51 trang giải đố Sudoku bằng hình ảnh ngộ nghĩnh kích thích trí não của bé.",
-    emoji: "🦊",
-    pages: 51,
-    type: "puzzle"
-  },
-  {
-    filename: "Top view worksheet.pdf",
-    title: "Phiếu Góc Nhìn Từ Trên (Top View)",
-    description: "Rèn luyện khả năng quan sát và hình dung vật thể từ góc nhìn phía trên cao.",
-    emoji: "🚁",
-    pages: 32,
-    type: "spatial"
-  },
-  {
-    filename: "Phiếu tự luyện số 1 2023.pdf",
-    title: "Phiếu Tự Luyện 2023",
-    description: "Đề bài tập ôn hè rèn luyện tư duy toán học và ngôn ngữ tổng hợp.",
-    emoji: "🍀",
-    pages: 2,
-    type: "general"
+    id: "story_quiz",
+    title: "Thử thách 5: Chuyện kể Gấu con 🐻",
+    description: "Tìm hiểu câu chuyện Gấu con cứu hộ và làm quen với lời Cảm ơn, Xin lỗi.",
+    emoji: "🐻",
+    difficulty: "Trung bình",
+    reward: "3 sao ⭐"
   }
 ];
 
